@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ChevronDown, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound } from 'lucide-react';
+import { Plus, ChevronDown, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, LogOut, Settings } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
+import { User } from '@supabase/supabase-js';
+import ProfileModal from './ProfileModal';
 
 const MODELS = [
   { id: 'nova', name: 'Nova', version: '1.1', description: 'Fastest' },
@@ -36,22 +38,72 @@ export default function App() {
   const [imageGenEnabled, setImageGenEnabled] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Auth & Free Tier State
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [anonChatCount, setAnonChatCount] = useState(0);
+
+  const getSessionId = () => {
+      let id = localStorage.getItem('kyza_session_id');
+      if (!id) {
+          id = 'anon-' + Math.random().toString(36).substring(2, 15);
+          localStorage.setItem('kyza_session_id', id);
+      }
+      return id;
+  };
 
   useEffect(() => {
-    const fetchChats = async () => {
-      if (import.meta.env.VITE_SUPABASE_URL) {
-        try {
-          const { data, error } = await supabase.from('chats').select('*').order('created_at', { ascending: true });
-          if (!error && data && data.length > 0) {
-             setMessages(data.map((d: any) => ({ role: d.role, content: d.content, attachments: d.attachments || [] })));
+    const initAuth = async () => {
+       const { data: { session } } = await supabase.auth.getSession();
+       setUser(session?.user ?? null);
+       
+       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+          setUser(newSession?.user ?? null);
+          if (newSession?.user) {
+             const localSessionId = getSessionId();
+             await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', localSessionId).is('user_id', null);
+             fetchChats(newSession.user);
           }
-        } catch (e) {
-          console.error("Supabase fetch error:", e);
-        }
-      }
+       });
+       fetchChats(session?.user ?? null);
+       
+       return () => subscription.unsubscribe();
     };
-    fetchChats();
+    if (import.meta.env.VITE_SUPABASE_URL) initAuth();
   }, []);
+
+  const fetchChats = async (currentUser: User | null) => {
+    try {
+      const localSessionId = getSessionId();
+      let query = supabase.from('chats').select('*').order('created_at', { ascending: true });
+      if (currentUser) {
+          query = query.eq('user_id', currentUser.id);
+      } else {
+          query = query.eq('session_id', localSessionId);
+      }
+
+      const { data, error } = await query;
+      if (!error && data) {
+         setMessages(data.map((d: any) => ({ role: d.role, content: d.content, attachments: d.attachments || [] })));
+         if (!currentUser) setAnonChatCount(data.length);
+      }
+    } catch (e) {
+      console.error("Supabase fetch error:", e);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+      await supabase.auth.signInWithOAuth({ provider: 'google' });
+  };
+
+  const handleLogout = async () => {
+      await supabase.auth.signOut();
+      setMessages([]);
+      setAnonChatCount(0);
+      setShowProfileModal(false);
+  };
 
   const speakWithHorimiyaVoice = (text: string) => {
     const u = new SpeechSynthesisUtterance(text);
@@ -80,6 +132,11 @@ export default function App() {
   const handleSend = async () => {
     if ((!input.trim() && attachments.length === 0) || isLoading) return;
     
+    if (!user && anonChatCount >= 10) {
+        setShowAuthModal(true);
+        return;
+    }
+    
     if (isRecording && recognitionRef.current) {
         recognitionRef.current.stop();
         setIsRecording(false);
@@ -99,7 +156,13 @@ export default function App() {
 
     try {
         if (import.meta.env.VITE_SUPABASE_URL) {
-            await supabase.from('chats').insert([{ role: 'user', content: newMsg.content, attachments: newMsg.attachments }]);
+            await supabase.from('chats').insert([{ 
+                role: 'user', 
+                content: newMsg.content, 
+                attachments: newMsg.attachments,
+                session_id: getSessionId(),
+                user_id: user?.id || null
+            }]);
         }
     } catch(e) { console.error(e) }
     
@@ -125,11 +188,18 @@ export default function App() {
       }
 
       const data = await response.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.content, attachments: data.attachments || [] }]);
       
       try {
           if (import.meta.env.VITE_SUPABASE_URL) {
-             await supabase.from('chats').insert([{ role: 'assistant', content: data.content, attachments: data.attachments || [] }]);
+             await supabase.from('chats').insert([{ 
+                 role: 'assistant', 
+                 content: data.content, 
+                 attachments: data.attachments || [],
+                 session_id: getSessionId(),
+                 user_id: user?.id || null
+             }]);
+             if (!user) setAnonChatCount(prev => prev + 2); // 1 for user, 1 for assistant
           }
       } catch(e) { console.error(e) }
 
@@ -293,6 +363,13 @@ export default function App() {
                    </button>
                  )}
                  <div className="chat-topbar-actions" style={{marginLeft: 'auto', display: 'flex', gap: '8px'}}>
+                    <button 
+                       onClick={() => user ? setShowProfileModal(true) : setShowAuthModal(true)}
+                       title={user ? "Profile" : "Sign In"} 
+                       style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}
+                    >
+                       {user ? <UserRound size={20} /> : <LogIn size={20} />}
+                    </button>
                     <button 
                        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                        className="chat-topbar-incognito" 
@@ -669,6 +746,44 @@ export default function App() {
                </div>
             </motion.div>
          )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showAuthModal && (
+          <motion.div 
+             initial={{ opacity: 0 }} 
+             animate={{ opacity: 1 }} 
+             exit={{ opacity: 0 }} 
+             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          >
+             <div style={{ background: 'var(--surface)', padding: '40px', borderRadius: '20px', textAlign: 'center', maxWidth: '400px', border: '1px solid var(--border)' }}>
+                <Sparkles size={40} style={{ margin: '0 auto 20px', color: 'var(--primary)' }} />
+                <h2 style={{ marginBottom: '10px' }}>Sign in to continue</h2>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', fontSize: '14px' }}>
+                  You've reached your limit of 5 free chats! Please sign in with Google to continue chatting with Kyza and Nina for free.
+                </p>
+                <button 
+                   onClick={handleGoogleLogin}
+                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '15px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 500 }}
+                >
+                   <LogIn size={20} /> Sign in with Google
+                </button>
+                <button onClick={() => setShowAuthModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', marginTop: '20px', cursor: 'pointer' }}>
+                   Cancel
+                </button>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showProfileModal && user && (
+           <ProfileModal 
+              user={user} 
+              onClose={() => setShowProfileModal(false)} 
+              onLogout={handleLogout} 
+           />
+        )}
       </AnimatePresence>
 
     </div>
