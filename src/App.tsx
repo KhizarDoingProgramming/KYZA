@@ -330,17 +330,24 @@ export default function App() {
         <AnimatePresence initial={false}>
           {isSidebarOpen && (
               <motion.aside 
-                 initial={{ x: -300, width: 0 }}
-                 animate={{ x: 0, width: '280px' }}
-                 exit={{ x: -300, width: 0 }}
-                 transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                 initial={{ width: 0, opacity: 0 }}
+                 animate={{ width: 280, opacity: 1 }}
+                 exit={{ width: 0, opacity: 0 }}
                  className="sidebar"
-                 style={{ position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 100, background: 'var(--canvas)', borderRight: '1px solid var(--hairline-strong)', overflow: 'hidden' }}
+                 style={{ 
+                    borderRight: '1px solid var(--hairline-strong)', 
+                    background: 'var(--surface-card)', 
+                    display: 'flex', flexDirection: 'column',
+                    position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 100 
+                 }}
               >
-                 <div style={{padding: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '280px'}}>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                       <img src="/favicon.jpeg" alt="Logo" style={{ width: '22px', height: '22px', borderRadius: '6px', objectFit: 'cover' }} />
-                       <span style={{marginLeft: '8px', fontWeight: 600, color: 'var(--ink)'}}>Kyza</span>
+                 <div style={{ padding: '20px 16px', borderBottom: '1px solid var(--hairline-strong)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                       <img src="/favicon.jpeg" alt="KYZA Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+                       <div>
+                           <div style={{ fontWeight: 700, fontSize: '18px', color: 'var(--ink)' }}>KYZA</div>
+                           <div style={{ fontSize: '12px', color: 'var(--text-sub)' }}>Your AI Assistant</div>
+                       </div>
                     </div>
                     <div style={{display: 'flex', gap: '8px'}}>
                         <button onClick={handleNewChat} style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}} title="New Chat">
@@ -382,6 +389,10 @@ export default function App() {
                              {user && <div style={{ fontSize: '12px', color: 'var(--text-sub)' }}>Settings</div>}
                          </div>
                      </button>
+                     
+                     <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                         <a href="/privacy.html" target="_blank" style={{ fontSize: '11px', color: 'var(--text-muted)', textDecoration: 'none' }} className="hover-text">Privacy Policy & Terms</a>
+                     </div>
                  </div>
               </motion.aside>
           )}
