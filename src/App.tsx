@@ -44,6 +44,15 @@ export default function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [anonChatCount, setAnonChatCount] = useState(0);
+  
+  // Mobile Responsiveness
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const getSessionId = () => {
       let id = localStorage.getItem('kyza_session_id');
@@ -352,8 +361,8 @@ export default function App() {
         </AnimatePresence>
         
         <div className="app-main">
-          <div className="chat-page" style={{ flexDirection: 'row' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+          <div className="chat-page" style={{ flexDirection: isMobile ? 'column' : 'row' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: isMobile && activeArtifact ? '50%' : '100%', position: 'relative' }}>
               
               <header className="chat-topbar">
               <div className="inner" style={{display: 'flex', alignItems: 'center', width: '100%'}}>
@@ -607,15 +616,17 @@ export default function App() {
           <AnimatePresence>
             {activeArtifact && (
               <motion.div 
-                 initial={{ width: 0, opacity: 0 }}
-                 animate={{ width: '50%', opacity: 1 }}
-                 exit={{ width: 0, opacity: 0 }}
+                 initial={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
+                 animate={isMobile ? { height: '50%', opacity: 1 } : { width: '50%', opacity: 1 }}
+                 exit={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
                  style={{ 
-                    borderLeft: '1px solid var(--hairline-strong)', 
+                    borderLeft: isMobile ? 'none' : '1px solid var(--hairline-strong)', 
+                    borderTop: isMobile ? '1px solid var(--hairline-strong)' : 'none',
                     background: 'var(--surface-card)', 
                     display: 'flex', 
                     flexDirection: 'column',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    zIndex: 10
                  }}
               >
                  <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--hairline-strong)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -704,44 +715,45 @@ export default function App() {
                    {/* Bottom Controls */}
                    <div style={{ position: 'absolute', bottom: '40px', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', zIndex: 100 }}>
                        
-                       {/* Subtitle / Input box */}
-                       <div style={{ width: '90%', maxWidth: '600px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', borderRadius: '16px', padding: '16px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
-                           {isLoading ? (
-                               <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Nina is thinking...</div>
-                           ) : (
-                               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                   <input 
-                                      type="text" 
-                                      value={input}
-                                      onChange={(e) => setInput(e.target.value)}
-                                      onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
-                                      placeholder="Say something to Nina..."
-                                      style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontSize: '16px' }}
-                                   />
-                                   <button id="live-send-btn" onClick={handleSend} style={{ background: 'var(--primary)', color: '#fff', border: 'none', width: '36px', height: '36px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                                       <Send size={16} />
-                                   </button>
-                               </div>
-                           )}
-                       </div>
+                        {/* Subtitle / Input box */}
+                        <div style={{ width: '90%', maxWidth: '600px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', borderRadius: '16px', padding: '12px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
+                            {isLoading ? (
+                                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Nina is thinking...</div>
+                            ) : (
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <input 
+                                       type="text" 
+                                       value={input}
+                                       onChange={(e) => setInput(e.target.value)}
+                                       onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
+                                       placeholder="Say something..."
+                                       style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontSize: '16px', minWidth: 0 }}
+                                    />
+                                    <button id="live-send-btn" onClick={handleSend} style={{ background: 'var(--primary)', color: '#fff', border: 'none', width: '36px', height: '36px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                                        <Send size={16} />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
 
-                       {/* Mic Button */}
-                       <button 
-                          onClick={toggleRecording}
-                          style={{
-                              width: '72px', height: '72px', borderRadius: '36px',
-                              background: isRecording ? 'rgba(255,59,48,0.2)' : 'rgba(255,255,255,0.1)',
-                              border: isRecording ? '2px solid #FF3B30' : '1px solid rgba(255,255,255,0.2)',
-                              backdropFilter: 'blur(10px)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              color: isRecording ? '#FF3B30' : '#FFF',
-                              cursor: 'pointer',
-                              boxShadow: isRecording ? '0 0 30px rgba(255,59,48,0.4)' : '0 4px 20px rgba(0,0,0,0.3)',
-                              transition: 'all 0.2s'
-                          }}
-                       >
-                           <Mic size={32} />
-                       </button>
+                        {/* Mic Button */}
+                        <button 
+                           onClick={toggleRecording}
+                           style={{
+                               width: '64px', height: '64px', borderRadius: '32px',
+                               background: isRecording ? 'rgba(255,59,48,0.2)' : 'rgba(255,255,255,0.1)',
+                               border: isRecording ? '2px solid #FF3B30' : '1px solid rgba(255,255,255,0.2)',
+                               backdropFilter: 'blur(10px)',
+                               display: 'flex', alignItems: 'center', justifyContent: 'center',
+                               color: isRecording ? '#FF3B30' : '#FFF',
+                               cursor: 'pointer',
+                               boxShadow: isRecording ? '0 0 30px rgba(255,59,48,0.4)' : '0 4px 20px rgba(0,0,0,0.3)',
+                               transition: 'all 0.2s',
+                               marginTop: isMobile ? '-10px' : '0'
+                           }}
+                        >
+                            <Mic size={28} />
+                        </button>
                    </div>
                </div>
             </motion.div>
