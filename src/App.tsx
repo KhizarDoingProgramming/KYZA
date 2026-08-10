@@ -78,7 +78,7 @@ const renderMessageContent = (content: string) => {
 
 export default function App() {
   const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [input, setInput] = useState('');
