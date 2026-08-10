@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ChevronDown, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, LogOut, Settings } from 'lucide-react';
+import { Plus, ChevronDown, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import ProfileModal from './ProfileModal';
 
 const MODELS = [
@@ -352,9 +352,36 @@ export default function App() {
                     </div>
                  </div>
                  
-                 <div style={{padding: '12px', width: '280px'}}>
+                 <div style={{padding: '12px', flex: 1, overflowY: 'auto'}}>
                     <div style={{fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600}}>History</div>
                     <div style={{fontSize: '13px', color: 'var(--text-sub)', padding: '8px 4px'}}>No recent chats</div>
+                 </div>
+
+                 {/* Profile / Settings Button at bottom of sidebar */}
+                 <div style={{ padding: '12px', borderTop: '1px solid var(--hairline-strong)' }}>
+                     <button 
+                         onClick={() => user ? setShowProfileModal(true) : setShowAuthModal(true)}
+                         className="hover-bg"
+                         style={{ 
+                             width: '100%', display: 'flex', alignItems: 'center', gap: '12px', 
+                             padding: '12px', background: 'transparent', border: 'none', 
+                             cursor: 'pointer', borderRadius: '8px', color: 'var(--ink)' 
+                         }}
+                     >
+                         {user?.user_metadata?.avatar_url ? (
+                             <img src={user.user_metadata.avatar_url} alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '16px', objectFit: 'cover' }} />
+                         ) : (
+                             <div style={{ width: '32px', height: '32px', borderRadius: '16px', background: 'var(--surface-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                 {user ? <UserRound size={18} /> : <LogIn size={18} />}
+                             </div>
+                         )}
+                         <div style={{ textAlign: 'left', flex: 1, overflow: 'hidden' }}>
+                             <div style={{ fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                                 {user ? (user.user_metadata?.full_name || 'My Account') : 'Sign In'}
+                             </div>
+                             {user && <div style={{ fontSize: '12px', color: 'var(--text-sub)' }}>Settings</div>}
+                         </div>
+                     </button>
                  </div>
               </motion.aside>
           )}
@@ -372,13 +399,6 @@ export default function App() {
                    </button>
                  )}
                  <div className="chat-topbar-actions" style={{marginLeft: 'auto', display: 'flex', gap: '8px'}}>
-                    <button 
-                       onClick={() => user ? setShowProfileModal(true) : setShowAuthModal(true)}
-                       title={user ? "Profile" : "Sign In"} 
-                       style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}
-                    >
-                       {user ? <UserRound size={20} /> : <LogIn size={20} />}
-                    </button>
                     <button 
                        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                        className="chat-topbar-incognito" 

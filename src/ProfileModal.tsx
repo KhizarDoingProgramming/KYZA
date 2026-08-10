@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, LogOut, Upload, UserRound } from 'lucide-react';
 import { supabase } from './lib/supabase';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 
 interface ProfileModalProps {
   user: User;
