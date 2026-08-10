@@ -126,10 +126,16 @@ export default function App() {
     
     let voiceToUse;
     if (hasUrdu) {
-        // Find an Urdu or Hindi voice (which reads Urdu perfectly)
-        voiceToUse = voices.find(v => v.lang.includes('ur') || v.lang.includes('hi'));
-        // Relax the pitch/rate slightly for natural Urdu
-        u.pitch = 1.1; 
+        // Find the absolute best Urdu/Hindi voice available on the user's device
+        voiceToUse = 
+            voices.find(v => v.lang === 'ur-PK' && (v.name.includes('Female') || v.name.includes('Google'))) ||
+            voices.find(v => v.lang.includes('ur') && (v.name.includes('Female') || v.name.includes('Google'))) ||
+            voices.find(v => v.lang.includes('ur')) ||
+            voices.find(v => v.lang.includes('hi') && (v.name.includes('Female') || v.name.includes('Google'))) ||
+            voices.find(v => v.lang.includes('hi'));
+            
+        // Reset pitch/rate for natural Urdu (high pitch ruins the Desi TTS engines)
+        u.pitch = 1.0; 
         u.rate = 1.0;
     }
     
