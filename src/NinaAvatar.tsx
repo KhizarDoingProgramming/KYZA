@@ -58,7 +58,9 @@ function NinaModel() {
       
       // Lip sync logic
       if (window.speechSynthesis && window.speechSynthesis.speaking) {
-         const mouthOpen = Math.random() > 0.3 ? Math.random() : 0;
+         const t = state.clock.elapsedTime;
+         // Smooth open and close based on time instead of random jitter every frame (approx 2 syllables per second)
+         let mouthOpen = Math.abs(Math.sin(t * 12)) * (0.6 + Math.sin(t * 5) * 0.3);
          vrm.expressionManager?.setValue(VRMExpressionPresetName.Aa, mouthOpen);
       } else {
          vrm.expressionManager?.setValue(VRMExpressionPresetName.Aa, 0);
