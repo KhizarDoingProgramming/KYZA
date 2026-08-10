@@ -83,6 +83,7 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(MODELS[0]);
@@ -141,9 +142,9 @@ export default function App() {
       setEditingChatId(null);
   };
 
-  const deleteChat = async (sessionId: string, e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (!confirm("Are you sure you want to delete this chat?")) return;
+  const confirmDeleteChat = async () => {
+      if (!chatToDelete) return;
+      const sessionId = chatToDelete;
       
       setChatHistory(prev => prev.filter(c => c.sessionId !== sessionId));
       if (currentSessionId === sessionId) {
@@ -158,6 +159,7 @@ export default function App() {
           const { error } = await supabase.from('chats').delete().eq('session_id', sessionId);
           if (error) console.error("Supabase delete error:", error);
       }
+      setChatToDelete(null);
   };
 
   useEffect(() => {
@@ -559,7 +561,7 @@ export default function App() {
                                                 <button onClick={(e) => { e.stopPropagation(); setEditingTitle(chat.title); setEditingChatId(chat.sessionId); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }} className="hover-bg">
                                                     <Edit2 size={12} />
                                                 </button>
-                                                <button onClick={(e) => deleteChat(chat.sessionId, e)} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }} className="hover-bg">
+                                                <button onClick={(e) => { e.stopPropagation(); setChatToDelete(chat.sessionId); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }} className="hover-bg">
                                                     <Trash2 size={12} />
                                                 </button>
                                             </div>
@@ -1038,6 +1040,32 @@ export default function App() {
                 <button onClick={() => setShowAuthModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', marginTop: '20px', cursor: 'pointer' }}>
                    Cancel
                 </button>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {chatToDelete && (
+          <motion.div 
+             initial={{ opacity: 0 }} 
+             animate={{ opacity: 1 }} 
+             exit={{ opacity: 0 }} 
+             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          >
+             <div style={{ background: 'var(--surface)', padding: '30px', borderRadius: '20px', textAlign: 'center', maxWidth: '350px', border: '1px solid var(--border)' }}>
+                <h3 style={{ marginBottom: '10px' }}>Delete Chat</h3>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '25px', fontSize: '14px', lineHeight: '1.5' }}>
+                  Are you sure you want to delete this chat? This action cannot be undone.
+                </p>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <button onClick={() => setChatToDelete(null)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '12px', cursor: 'pointer', fontWeight: 500 }} className="hover-bg">
+                        Cancel
+                    </button>
+                    <button onClick={confirmDeleteChat} style={{ padding: '10px 20px', background: '#FF3B30', border: 'none', color: '#FFF', borderRadius: '12px', cursor: 'pointer', fontWeight: 500 }}>
+                        Delete
+                    </button>
+                </div>
              </div>
           </motion.div>
         )}
