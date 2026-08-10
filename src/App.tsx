@@ -237,7 +237,17 @@ export default function App() {
                 session_id: currentSessionId,
                 user_id: user?.id || null
             }]);
-            fetchChats(user);
+            
+            // Instantly update sidebar for new chats without re-fetching everything
+            setChatHistory(prev => {
+                if (prev.find(h => h.sessionId === currentSessionId)) return prev;
+                return [{
+                    sessionId: currentSessionId,
+                    title: newMsg.content.substring(0, 30) + '...',
+                    created_at: new Date().toISOString(),
+                    messages: [newMsg]
+                }, ...prev];
+            });
         }
     } catch(e) { console.error(e) }
     
@@ -274,7 +284,7 @@ export default function App() {
                  session_id: currentSessionId,
                  user_id: user?.id || null
              }]);
-             fetchChats(user);
+             setChatHistory(prev => prev.map(h => h.sessionId === currentSessionId ? { ...h, messages: [...h.messages, {role: 'assistant', content: data.content, attachments: data.attachments || []}] } : h));
 
           }
       } catch(e) { console.error(e) }
