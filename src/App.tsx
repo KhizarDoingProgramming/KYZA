@@ -24,10 +24,10 @@ const getSessionId = () => {
 };
 
 export default function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [messages, setMessages] = useState<any[]>([]);
   const [chatHistory, setChatHistory] = useState<any[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(MODELS[0]);
@@ -140,8 +140,11 @@ export default function App() {
   
   // Re-fetch when currentSessionId changes
   useEffect(() => {
+     if (currentSessionId) {
+         sessionStorage.setItem('kyza_session_id', currentSessionId);
+     }
      fetchChats(user);
-  }, [currentSessionId]);
+  }, [currentSessionId, user]);
 
   const handleGoogleLogin = async (credentialResponse: any) => {
       if (credentialResponse.credential) {
@@ -584,8 +587,7 @@ export default function App() {
               </div>
             </div>
 
-            <motion.div 
-               layout
+            <div 
                className="composer-wrap"
                style={messages.length === 0 ? {
                    position: 'absolute',
@@ -729,7 +731,7 @@ export default function App() {
               <div className="hints" style={{textAlign: 'center', marginTop: '8px', fontSize: '12px', color: 'var(--muted)'}}>
                  <span>Use <kbd>Shift</kbd> + <kbd>Return</kbd> for a new line.</span>
               </div>
-            </motion.div>
+            </div>
           </div>
           
           {/* Artifacts Pane (Split Screen) */}
