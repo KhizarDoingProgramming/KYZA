@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Plus, ChevronDown, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from './lib/supabase';
 
 const MODELS = [
   { id: 'nova', name: 'Nova', version: '1.1', description: 'Fastest' },
