@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { HfInference } from '@huggingface/inference';
 import OpenAI from 'openai';
 
-const SYSTEM_PROMPT = `You are Kyza, a highly capable AI assistant built to help the user with any task. Be concise, intelligent, and helpful. You were created by Mustafa. If asked about your creator, you can use knowledge that he is a developer, but DO NOT mention the website "mustaffa.vercel.app" unless the user explicitly asks where to find more information about him.
+const KYZA_SYSTEM_PROMPT = `You are Kyza, a highly capable AI assistant built to help the user with any task. Be concise, intelligent, and helpful. You were created by Mustafa. If asked about your creator, you can use knowledge that he is a developer, but DO NOT mention the website "mustaffa.vercel.app" unless the user explicitly asks where to find more information about him.
 
 CRITICAL INSTRUCTION FOR ARTIFACTS:
 If the user asks you to generate a spreadsheet, sheet, or table of data, you MUST output it inside a \`\`\`csv code block. 
@@ -11,7 +11,9 @@ If the user asks you to generate a document, report, or long article, you MUST o
 If the user asks you to write code, output it in the respective language code block (e.g. \`\`\`html or \`\`\`react).
 The frontend application will intercept these blocks and render them in a beautiful preview pane, similar to Claude Artifacts.`;
 
-async function runOpenAI(client, model, messages) {
+const NINA_SYSTEM_PROMPT = `You are Nina, a friendly, casual, and highly interactive AI avatar. You act like a human on a video call. You were created by Mustafa. You are talkative, energetic, and expressive. You always respond as Nina. Do NOT refer to yourself as Kyza. Be conversational and engaging! Keep your responses somewhat brief since they will be read aloud.`;
+
+async function runOpenAI(client, model, messages, systemPrompt) {
   const formattedMessages = messages.map(m => {
     if (m.attachments && m.attachments.length > 0) {
       return {
@@ -30,13 +32,13 @@ async function runOpenAI(client, model, messages) {
 
   const completion = await client.chat.completions.create({
     model: model,
-    messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...formattedMessages],
+    messages: [{ role: 'system', content: systemPrompt }, ...formattedMessages],
   });
   return completion.choices[0].message.content;
 }
 
-async function runGemini(modelName, messages, genAI) {
-  const geminiModel = genAI.getGenerativeModel({ model: modelName, systemInstruction: SYSTEM_PROMPT });
+async function runGemini(modelName, messages, genAI, systemPrompt) {
+  const geminiModel = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemPrompt });
   
   const formattedContents = messages.map(m => {
     const parts = [{ text: m.content }];
@@ -89,7 +91,8 @@ export default async function handler(req, res) {
     apiKey: process.env.CEREBRAS_API_KEY,
   });
 
-  const { model, messages } = req.body;
+  const { model, messages, isNinaMode } = req.body;
+  const currentPrompt = isNinaMode ? NINA_SYSTEM_PROMPT : KYZA_SYSTEM_PROMPT;
   
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Messages array is required.' });
@@ -100,36 +103,36 @@ export default async function handler(req, res) {
   try {
     if (model === 'nova') {
       try {
-        responseContent = await runOpenAI(groq, 'llama-3.1-8b-instant', messages);
+        responseContent = await runOpenAI(groq, 'llama-3.1-8b-instant', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages);
+          responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages);
+          responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'atlas') {
       try {
-        responseContent = await runGemini('gemini-1.5-flash-latest', messages, genAI);
+        responseContent = await runGemini('gemini-1.5-flash-latest', messages, genAI, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(openrouter, 'google/gemini-1.5-flash', messages);
+          responseContent = await runOpenAI(openrouter, 'google/gemini-1.5-flash', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runOpenAI(deepseek, 'deepseek-coder', messages);
+          responseContent = await runOpenAI(deepseek, 'deepseek-coder', messages, currentPrompt);
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'helix') {
       try {
-        responseContent = await runGemini('gemini-1.5-pro-latest', messages, genAI);
+        responseContent = await runGemini('gemini-1.5-pro-latest', messages, genAI, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(openrouter, 'anthropic/claude-3.5-sonnet', messages);
+          responseContent = await runOpenAI(openrouter, 'anthropic/claude-3.5-sonnet', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runOpenAI(groq, 'llama-3.1-70b-versatile', messages);
+          responseContent = await runOpenAI(groq, 'llama-3.1-70b-versatile', messages, currentPrompt);
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });

@@ -115,6 +115,7 @@ export default function App() {
         },
         body: JSON.stringify({
           model: selectedModel.id,
+          isNinaMode: isLiveMode,
           messages: currentMessages.map(m => ({ role: m.role, content: m.content, attachments: m.attachments }))
         })
       });
