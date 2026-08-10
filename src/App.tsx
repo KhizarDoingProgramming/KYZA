@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ChevronDown, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn } from 'lucide-react';
+import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import ProfileModal from './ProfileModal';
+import { GoogleLogin } from '@react-oauth/google';
 
 const MODELS = [
   { id: 'nova', name: 'Nova', version: '1.1', description: 'Fastest' },
@@ -13,9 +14,20 @@ const MODELS = [
   { id: 'prism', name: 'Prism', version: '1.2', description: 'Image generation' },
 ];
 
+const getSessionId = () => {
+    let id = sessionStorage.getItem('kyza_session_id');
+    if (!id) {
+        id = 'anon-' + Math.random().toString(36).substring(2, 15);
+        sessionStorage.setItem('kyza_session_id', id);
+    }
+    return id;
+};
+
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
+  const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(MODELS[0]);
@@ -43,7 +55,6 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [anonChatCount, setAnonChatCount] = useState(0);
   
   // Mobile Responsiveness
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -54,13 +65,13 @@ export default function App() {
       return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const getSessionId = () => {
-      let id = localStorage.getItem('kyza_session_id');
-      if (!id) {
-          id = 'anon-' + Math.random().toString(36).substring(2, 15);
-          localStorage.setItem('kyza_session_id', id);
-      }
-      return id;
+  const handleNewChat = () => {
+      const newId = 'anon-' + Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('kyza_session_id', newId);
+      setCurrentSessionId(newId);
+      setMessages([]);
+      setActiveArtifact(null);
+      if (isMobile) setIsSidebarOpen(false);
   };
 
   useEffect(() => {
@@ -71,9 +82,10 @@ export default function App() {
        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
           setUser(newSession?.user ?? null);
           if (newSession?.user) {
-             const localSessionId = getSessionId();
-             await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', localSessionId).is('user_id', null);
+             // Wait until session is ready
+             await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionId).is('user_id', null);
              fetchChats(newSession.user);
+             if (newSession.user && showAuthModal) setShowAuthModal(false);
           }
        });
        fetchChats(session?.user ?? null);
@@ -85,7 +97,7 @@ export default function App() {
 
   const fetchChats = async (currentUser: User | null) => {
     try {
-      const localSessionId = getSessionId();
+      const localSessionId = currentSessionId;
       let query = supabase.from('chats').select('*').order('created_at', { ascending: true });
       if (currentUser) {
           query = query.eq('user_id', currentUser.id);
@@ -95,22 +107,55 @@ export default function App() {
 
       const { data, error } = await query;
       if (!error && data) {
-         setMessages(data.map((d: any) => ({ role: d.role, content: d.content, attachments: d.attachments || [] })));
-         if (!currentUser) setAnonChatCount(data.length);
+         if (currentUser) {
+             const history = data.reduce((acc: any, msg: any) => {
+                 if (!acc[msg.session_id]) acc[msg.session_id] = [];
+                 acc[msg.session_id].push(msg);
+                 return acc;
+             }, {});
+             
+             const historyArray = Object.keys(history).map(sid => ({
+                 sessionId: sid,
+                 messages: history[sid],
+                 title: history[sid][0]?.content?.substring(0, 30) + '...',
+                 created_at: history[sid][0]?.created_at || new Date().toISOString()
+             })).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+             
+             setChatHistory(historyArray);
+             
+             const currentChat = historyArray.find(h => h.sessionId === localSessionId);
+             if (currentChat) {
+                 setMessages(currentChat.messages.map((m: any) => ({ role: m.role, content: m.content, attachments: m.attachments || [] })));
+             } else {
+                 setMessages([]);
+             }
+         } else {
+             setMessages(data.map((d: any) => ({ role: d.role, content: d.content, attachments: d.attachments || [] })));
+         }
       }
     } catch (e) {
       console.error("Supabase fetch error:", e);
     }
   };
+  
+  // Re-fetch when currentSessionId changes
+  useEffect(() => {
+     fetchChats(user);
+  }, [currentSessionId]);
 
-  const handleGoogleLogin = async () => {
-      await supabase.auth.signInWithOAuth({ provider: 'google' });
+  const handleGoogleLogin = async (credentialResponse: any) => {
+      if (credentialResponse.credential) {
+          await supabase.auth.signInWithIdToken({
+              provider: 'google',
+              token: credentialResponse.credential
+          });
+          setShowAuthModal(false);
+      }
   };
 
   const handleLogout = async () => {
       await supabase.auth.signOut();
       setMessages([]);
-      setAnonChatCount(0);
       setShowProfileModal(false);
   };
 
@@ -163,11 +208,6 @@ export default function App() {
   const handleSend = async () => {
     if ((!input.trim() && attachments.length === 0) || isLoading) return;
     
-    if (!user && anonChatCount >= 10) {
-        setShowAuthModal(true);
-        return;
-    }
-    
     if (isRecording && recognitionRef.current) {
         recognitionRef.current.stop();
         setIsRecording(false);
@@ -191,7 +231,7 @@ export default function App() {
                 role: 'user', 
                 content: newMsg.content, 
                 attachments: newMsg.attachments,
-                session_id: getSessionId(),
+                session_id: currentSessionId,
                 user_id: user?.id || null
             }]);
         }
@@ -227,10 +267,10 @@ export default function App() {
                  role: 'assistant', 
                  content: data.content, 
                  attachments: data.attachments || [],
-                 session_id: getSessionId(),
+                 session_id: currentSessionId,
                  user_id: user?.id || null
              }]);
-             if (!user) setAnonChatCount(prev => prev + 2); // 1 for user, 1 for assistant
+
           }
       } catch(e) { console.error(e) }
 
@@ -265,19 +305,6 @@ export default function App() {
     }
   };
 
-  const handleNewChat = async () => {
-    setMessages([]);
-    setActiveArtifact(null);
-    setInput('');
-    setAttachments([]);
-    setWebSearchEnabled(false);
-    
-    if (import.meta.env.VITE_SUPABASE_URL) {
-        try {
-            await supabase.from('chats').delete().neq('id', 0); // Delete all chats
-        } catch(e) { console.error(e) }
-    }
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
@@ -383,7 +410,34 @@ export default function App() {
                  
                  <div style={{padding: '12px', flex: 1, overflowY: 'auto'}}>
                     <div style={{fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600}}>History</div>
-                    <div style={{fontSize: '13px', color: 'var(--text-sub)', padding: '8px 4px'}}>No recent chats</div>
+                    {user ? (
+                        chatHistory.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                {chatHistory.map((chat) => (
+                                    <button 
+                                        key={chat.sessionId}
+                                        onClick={() => {
+                                            setCurrentSessionId(chat.sessionId);
+                                            if (isMobile) setIsSidebarOpen(false);
+                                        }}
+                                        style={{ 
+                                            textAlign: 'left', background: chat.sessionId === currentSessionId ? 'var(--surface-soft)' : 'transparent', 
+                                            border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', 
+                                            color: chat.sessionId === currentSessionId ? 'var(--ink)' : 'var(--text-sub)',
+                                            fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                                        }}
+                                        className="hover-bg"
+                                    >
+                                        {chat.title}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{fontSize: '13px', color: 'var(--text-sub)', padding: '8px 4px'}}>No recent chats</div>
+                        )
+                    ) : (
+                        <div style={{fontSize: '13px', color: 'var(--text-sub)', padding: '8px 4px'}}>Sign in to save history</div>
+                    )}
                  </div>
 
                  {/* Profile / Settings Button at bottom of sidebar */}
@@ -482,7 +536,21 @@ export default function App() {
                                   {msg.attachments && msg.attachments.length > 0 && (
                                       <div style={{display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap'}}>
                                          {msg.attachments.map((att: string, idx: number) => (
-                                            <img key={idx} src={att} alt="attachment" style={{width: '200px', borderRadius: '8px', border: '1px solid var(--hairline-strong)'}} />
+                                            <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
+                                               <img src={att} alt="attachment" style={{width: '200px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', display: 'block'}} />
+                                               <button 
+                                                  onClick={() => {
+                                                      const a = document.createElement('a');
+                                                      a.href = att;
+                                                      a.download = `kyza-image-${idx}.png`;
+                                                      a.click();
+                                                  }}
+                                                  style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
+                                                  title="Download Image"
+                                               >
+                                                  <Download size={14} />
+                                               </button>
+                                            </div>
                                          ))}
                                       </div>
                                   )}
@@ -822,16 +890,17 @@ export default function App() {
           >
              <div style={{ background: 'var(--surface)', padding: '40px', borderRadius: '20px', textAlign: 'center', maxWidth: '400px', border: '1px solid var(--border)' }}>
                 <img src="/favicon.jpeg" alt="Kyza Logo" style={{ width: '64px', height: '64px', borderRadius: '16px', margin: '0 auto 20px', objectFit: 'cover', display: 'block' }} />
-                <h2 style={{ marginBottom: '10px' }}>Sign in to continue</h2>
+                <h2 style={{ marginBottom: '10px' }}>Sign in to KYZA</h2>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', fontSize: '14px' }}>
-                  You've reached your limit of 5 free chats! Please sign in with Google to continue chatting with Kyza and Nina for free.
+                  Sign in with Google to save your chat history and unlock all features.
                 </p>
-                <button 
-                   onClick={handleGoogleLogin}
-                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '15px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 500 }}
-                >
-                   <LogIn size={20} /> Sign in with Google
-                </button>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <GoogleLogin 
+                        onSuccess={handleGoogleLogin}
+                        onError={() => console.error('Login Failed')}
+                        useOneTap
+                    />
+                </div>
                 <button onClick={() => setShowAuthModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', marginTop: '20px', cursor: 'pointer' }}>
                    Cancel
                 </button>
