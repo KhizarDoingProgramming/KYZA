@@ -4547,9 +4547,9 @@ body:has(.app-shell),
 /* Mobile bar (chat shell) — menu + incognito */
 .mobile-bar { gap: 8px; padding: 0 12px; }
 
-/* Incognito lives in the mobile navbar; hide the desktop chat topbar strip. */
+/* Let chat-topbar be visible on mobile */
 @media (max-width: 1023px) {
-  .chat-topbar { display: none; }
+  .chat-topbar { display: flex; }
 }
 
 /* =============================================================
