@@ -789,7 +789,7 @@ export default function App() {
              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
           >
              <div style={{ background: 'var(--surface)', padding: '40px', borderRadius: '20px', textAlign: 'center', maxWidth: '400px', border: '1px solid var(--border)' }}>
-                <Sparkles size={40} style={{ margin: '0 auto 20px', color: 'var(--primary)' }} />
+                <img src="/favicon.jpeg" alt="Kyza Logo" style={{ width: '64px', height: '64px', borderRadius: '16px', margin: '0 auto 20px', objectFit: 'cover', display: 'block' }} />
                 <h2 style={{ marginBottom: '10px' }}>Sign in to continue</h2>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', fontSize: '14px' }}>
                   You've reached your limit of 5 free chats! Please sign in with Google to continue chatting with Kyza and Nina for free.
