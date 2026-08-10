@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy } from 'lucide-react';
+import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2 } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -81,6 +81,8 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(MODELS[0]);
@@ -127,6 +129,37 @@ export default function App() {
       if (isMobile) setIsSidebarOpen(false);
   };
 
+  const saveChatTitle = (sessionId: string, newTitle: string) => {
+      if (!newTitle.trim()) {
+          setEditingChatId(null);
+          return;
+      }
+      const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
+      storedTitles[sessionId] = newTitle.trim();
+      localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
+      setChatHistory(prev => prev.map(chat => chat.sessionId === sessionId ? { ...chat, title: newTitle.trim() } : chat));
+      setEditingChatId(null);
+  };
+
+  const deleteChat = async (sessionId: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!confirm("Are you sure you want to delete this chat?")) return;
+      
+      setChatHistory(prev => prev.filter(c => c.sessionId !== sessionId));
+      if (currentSessionId === sessionId) {
+          handleNewChat();
+      }
+      
+      const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
+      delete storedTitles[sessionId];
+      localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
+
+      if (import.meta.env.VITE_SUPABASE_URL && user) {
+          const { error } = await supabase.from('chats').delete().eq('session_id', sessionId);
+          if (error) console.error("Supabase delete error:", error);
+      }
+  };
+
   useEffect(() => {
     const initAuth = async () => {
        const { data: { session } } = await supabase.auth.getSession();
@@ -168,10 +201,11 @@ export default function App() {
                  return acc;
              }, {});
              
+             const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
              const historyArray = Object.keys(history).map(sid => ({
                  sessionId: sid,
                  messages: history[sid],
-                 title: history[sid][0]?.content?.substring(0, 30) + '...',
+                 title: storedTitles[sid] || history[sid][0]?.content?.substring(0, 30) + '...',
                  created_at: history[sid][0]?.created_at || new Date().toISOString()
              })).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
              
@@ -296,9 +330,10 @@ export default function App() {
             // Instantly update sidebar for new chats without re-fetching everything
             setChatHistory(prev => {
                 if (prev.find(h => h.sessionId === currentSessionId)) return prev;
+                const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
                 return [{
                     sessionId: currentSessionId,
-                    title: newMsg.content.substring(0, 30) + '...',
+                    title: storedTitles[currentSessionId] || newMsg.content.substring(0, 30) + '...',
                     created_at: new Date().toISOString(),
                     messages: [newMsg]
                 }, ...prev];
@@ -485,22 +520,51 @@ export default function App() {
                         chatHistory.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                 {chatHistory.map((chat) => (
-                                    <button 
-                                        key={chat.sessionId}
-                                        onClick={() => {
-                                            setCurrentSessionId(chat.sessionId);
-                                            if (isMobile) setIsSidebarOpen(false);
-                                        }}
-                                        style={{ 
-                                            textAlign: 'left', background: chat.sessionId === currentSessionId ? 'var(--surface-soft)' : 'transparent', 
-                                            border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', 
-                                            color: chat.sessionId === currentSessionId ? 'var(--ink)' : 'var(--text-sub)',
-                                            fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                                        }}
-                                        className="hover-bg"
-                                    >
-                                        {chat.title}
-                                    </button>
+                                    <div key={chat.sessionId} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                        {editingChatId === chat.sessionId ? (
+                                            <input 
+                                                autoFocus
+                                                value={editingTitle}
+                                                onChange={e => setEditingTitle(e.target.value)}
+                                                onBlur={() => saveChatTitle(chat.sessionId, editingTitle)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') saveChatTitle(chat.sessionId, editingTitle);
+                                                    if (e.key === 'Escape') setEditingChatId(null);
+                                                }}
+                                                style={{
+                                                    flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)',
+                                                    background: 'var(--surface)', color: 'var(--ink)', fontSize: '13px', outline: 'none'
+                                                }}
+                                            />
+                                        ) : (
+                                            <button 
+                                                onClick={() => {
+                                                    setCurrentSessionId(chat.sessionId);
+                                                    if (isMobile) setIsSidebarOpen(false);
+                                                }}
+                                                style={{ 
+                                                    flex: 1, textAlign: 'left', background: chat.sessionId === currentSessionId ? 'var(--surface-soft)' : 'transparent', 
+                                                    border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', 
+                                                    color: chat.sessionId === currentSessionId ? 'var(--ink)' : 'var(--text-sub)',
+                                                    fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                    paddingRight: '60px'
+                                                }}
+                                                className="hover-bg"
+                                            >
+                                                {chat.title}
+                                            </button>
+                                        )}
+                                        {editingChatId !== chat.sessionId && (
+                                            <div style={{ position: 'absolute', right: '4px', display: 'flex', gap: '4px' }}>
+                                                <button onClick={(e) => { e.stopPropagation(); setEditingTitle(chat.title); setEditingChatId(chat.sessionId); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }} className="hover-bg">
+                                                    <Edit2 size={12} />
+                                                </button>
+                                                <button onClick={(e) => deleteChat(chat.sessionId, e)} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }} className="hover-bg">
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         ) : (
