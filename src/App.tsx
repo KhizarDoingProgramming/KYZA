@@ -120,10 +120,26 @@ export default function App() {
     u.rate = 1.05; // Slightly faster, energetic
     
     const voices = window.speechSynthesis.getVoices();
-    // Prefer a Japanese or female English voice
-    const animeVoice = voices.find(v => v.lang.includes('ja') || v.name.includes('Female') || v.name.includes('Google UK English Female'));
-    if (animeVoice) {
-        u.voice = animeVoice;
+    
+    // Check if the text contains Urdu/Arabic characters
+    const hasUrdu = /[\u0600-\u06FF]/.test(text);
+    
+    let voiceToUse;
+    if (hasUrdu) {
+        // Find an Urdu or Hindi voice (which reads Urdu perfectly)
+        voiceToUse = voices.find(v => v.lang.includes('ur') || v.lang.includes('hi'));
+        // Relax the pitch/rate slightly for natural Urdu
+        u.pitch = 1.1; 
+        u.rate = 1.0;
+    }
+    
+    if (!voiceToUse) {
+        // Fallback to anime/female English voice
+        voiceToUse = voices.find(v => v.lang.includes('ja') || v.name.includes('Female') || v.name.includes('Google UK English Female'));
+    }
+    
+    if (voiceToUse) {
+        u.voice = voiceToUse;
     }
     window.speechSynthesis.speak(u);
   };
@@ -469,8 +485,7 @@ export default function App() {
                                      <div style={{ marginTop: '12px' }}>
                                          <button 
                                             onClick={() => {
-                                               const u = new SpeechSynthesisUtterance(msg.content);
-                                               window.speechSynthesis.speak(u);
+                                               speakWithHorimiyaVoice(msg.content);
                                             }}
                                             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--surface-soft)', border: '1px solid var(--hairline)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: 'var(--text-sub)' }}
                                            className="hover-bg"
