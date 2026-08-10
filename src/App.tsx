@@ -237,6 +237,7 @@ export default function App() {
                 session_id: currentSessionId,
                 user_id: user?.id || null
             }]);
+            fetchChats(user);
         }
     } catch(e) { console.error(e) }
     
@@ -273,6 +274,7 @@ export default function App() {
                  session_id: currentSessionId,
                  user_id: user?.id || null
              }]);
+             fetchChats(user);
 
           }
       } catch(e) { console.error(e) }
