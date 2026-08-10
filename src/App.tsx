@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn } from 'lucide-react';
+import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -21,6 +21,59 @@ const getSessionId = () => {
         sessionStorage.setItem('kyza_session_id', id);
     }
     return id;
+};
+
+const renderMessageContent = (content: string) => {
+    if (!content) return null;
+    const parts = content.split(/(```[\w]*\n[\s\S]*?```)/g);
+    return parts.map((part, index) => {
+        if (part.startsWith('```')) {
+            const match = part.match(/```([\w]*)\n([\s\S]*?)```/);
+            if (match) {
+                const language = match[1] || 'text';
+                const code = match[2];
+                return (
+                    <div key={index} style={{ margin: '16px 0', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--hairline-strong)', background: 'var(--surface-card)', color: 'var(--ink)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--surface-soft)', borderBottom: '1px solid var(--hairline-strong)', fontSize: '12px' }}>
+                            <span style={{ textTransform: 'uppercase', fontWeight: 600, color: 'var(--text-sub)' }}>{language}</span>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                    onClick={() => navigator.clipboard.writeText(code.trim())}
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                    className="hover-text"
+                                    title="Copy Code"
+                                >
+                                    <Copy size={14} />
+                                    Copy
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        const blob = new Blob([code.trim()], { type: 'text/plain' });
+                                        const url = URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = `code.${language || 'txt'}`;
+                                        a.click();
+                                        URL.revokeObjectURL(url);
+                                    }}
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                    className="hover-text"
+                                    title="Download Code"
+                                >
+                                    <Download size={14} />
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                        <div style={{ padding: '12px', overflowX: 'auto', whiteSpace: 'pre', fontSize: '13px', fontFamily: 'monospace' }}>
+                            {code.trim()}
+                        </div>
+                    </div>
+                );
+            }
+        }
+        return <span key={index}>{part}</span>;
+    });
 };
 
 export default function App() {
@@ -545,7 +598,7 @@ export default function App() {
                                      {msg.role === 'assistant' ? 'Kyza' : 'You'}
                                   </div>
                                   <div className="text" style={{ whiteSpace: 'pre-wrap', color: 'var(--text-main)', lineHeight: '1.5' }}>
-                                     {msg.content}
+                                     {renderMessageContent(msg.content)}
                                   </div>
 
                                   {msg.attachments && msg.attachments.length > 0 && (
