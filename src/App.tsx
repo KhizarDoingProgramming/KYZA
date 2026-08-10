@@ -136,7 +136,8 @@ export default function App() {
           setUser(newSession?.user ?? null);
           if (newSession?.user) {
              // Wait until session is ready
-             await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionId).is('user_id', null);
+             const { error: updateError } = await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionId).is('user_id', null);
+             if (updateError) console.error("Supabase update error:", updateError);
              fetchChats(newSession.user);
              if (newSession.user && showAuthModal) setShowAuthModal(false);
           }
@@ -283,13 +284,14 @@ export default function App() {
 
     try {
         if (import.meta.env.VITE_SUPABASE_URL) {
-            await supabase.from('chats').insert([{ 
+            const { error: insertError } = await supabase.from('chats').insert([{ 
                 role: 'user', 
                 content: newMsg.content, 
                 attachments: newMsg.attachments,
                 session_id: currentSessionId,
                 user_id: user?.id || null
             }]);
+            if (insertError) console.error("Supabase insert error (user msg):", insertError);
             
             // Instantly update sidebar for new chats without re-fetching everything
             setChatHistory(prev => {
@@ -330,13 +332,14 @@ export default function App() {
       
       try {
           if (import.meta.env.VITE_SUPABASE_URL) {
-             await supabase.from('chats').insert([{ 
+             const { error: assistInsertError } = await supabase.from('chats').insert([{ 
                  role: 'assistant', 
                  content: data.content, 
                  attachments: data.attachments || [],
                  session_id: currentSessionId,
                  user_id: user?.id || null
              }]);
+             if (assistInsertError) console.error("Supabase insert error (assistant msg):", assistInsertError);
              setChatHistory(prev => prev.map(h => h.sessionId === currentSessionId ? { ...h, messages: [...h.messages, {role: 'assistant', content: data.content, attachments: data.attachments || []}] } : h));
 
           }
