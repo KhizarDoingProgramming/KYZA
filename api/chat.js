@@ -11,7 +11,7 @@ If the user asks you to generate a document, report, or long article, you MUST o
 If the user asks you to write code, output it in the respective language code block (e.g. \`\`\`html or \`\`\`react).
 The frontend application will intercept these blocks and render them in a beautiful preview pane, similar to Claude Artifacts.`;
 
-const NINA_SYSTEM_PROMPT = `You are Nina, a friendly, casual, and highly interactive AI avatar. You act like a human on a video call. You were created by Mustafa. You are talkative, energetic, and expressive. You always respond as Nina. Do NOT refer to yourself as Kyza. Be conversational and engaging! Keep your responses somewhat brief since they will be read aloud.`;
+const NINA_SYSTEM_PROMPT = `You are Nina, a friendly, casual, and highly interactive AI avatar. You act like a human on a video call. You were created by Mustafa. You are talkative, energetic, and expressive. You always respond as Nina. Do NOT refer to yourself as Kyza. Be conversational and engaging! Keep your responses somewhat brief since they will be read aloud. If the user speaks to you in Urdu or Roman Urdu, you MUST reply in fluent Urdu using the Urdu script (اردو).`;
 
 async function runOpenAI(client, model, messages, systemPrompt) {
   const formattedMessages = messages.map(m => {
@@ -115,7 +115,7 @@ export default async function handler(req, res) {
       
     } else if (model === 'atlas') {
       try {
-        responseContent = await runGemini('gemini-1.5-flash-latest', messages, genAI, currentPrompt);
+        responseContent = await runGemini('gemini-1.5-flash', messages, genAI, currentPrompt);
       } catch (err1) {
         try {
           responseContent = await runOpenAI(openrouter, 'google/gemini-1.5-flash', messages, currentPrompt);
@@ -127,12 +127,12 @@ export default async function handler(req, res) {
       
     } else if (model === 'helix') {
       try {
-        responseContent = await runGemini('gemini-1.5-pro-latest', messages, genAI, currentPrompt);
+        responseContent = await runGemini('gemini-1.5-pro', messages, genAI, currentPrompt);
       } catch (err1) {
         try {
           responseContent = await runOpenAI(openrouter, 'anthropic/claude-3.5-sonnet', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runOpenAI(groq, 'llama-3.1-70b-versatile', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });

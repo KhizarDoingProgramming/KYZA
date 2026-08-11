@@ -42,7 +42,7 @@ If the user asks you to generate a document, report, or long article, you MUST o
 If the user asks you to write code, output it in the respective language code block (e.g. \`\`\`html or \`\`\`react).
 The frontend application will intercept these blocks and render them in a beautiful preview pane, similar to Claude Artifacts.`;
 
-const NINA_SYSTEM_PROMPT = `You are Nina, a friendly, casual, and highly interactive AI avatar. You act like a human on a video call. You were created by Mustafa. You are talkative, energetic, and expressive. You always respond as Nina. Do NOT refer to yourself as Kyza. Be conversational and engaging! Keep your responses somewhat brief since they will be read aloud.`;
+const NINA_SYSTEM_PROMPT = `You are Nina, a friendly, casual, and highly interactive AI avatar. You act like a human on a video call. You were created by Mustafa. You are talkative, energetic, and expressive. You always respond as Nina. Do NOT refer to yourself as Kyza. Be conversational and engaging! Keep your responses somewhat brief since they will be read aloud. If the user speaks to you in Urdu or Roman Urdu, you MUST reply in fluent Urdu using the Urdu script (اردو).`;
 
 // Helper to run OpenAI-compatible clients
 async function runOpenAI(client, model, messages, systemPrompt) {
@@ -129,7 +129,7 @@ app.post('/api/chat', async (req, res) => {
       // Atlas 1.1: Try Gemini Flash -> fallback OpenRouter -> fallback DeepSeek
       try {
         console.log("Atlas: Attempting Gemini Flash...");
-        responseContent = await runGemini('gemini-1.5-flash-latest', messages, currentPrompt);
+        responseContent = await runGemini('gemini-1.5-flash', messages, currentPrompt);
       } catch (err1) {
         console.warn("Gemini Flash failed, falling back to OpenRouter:", err1.message);
         try {
@@ -145,14 +145,14 @@ app.post('/api/chat', async (req, res) => {
       // Helix 1.1: Try Gemini Pro -> fallback OpenRouter -> fallback Groq 70b
       try {
         console.log("Helix: Attempting Gemini Pro...");
-        responseContent = await runGemini('gemini-1.5-pro-latest', messages, currentPrompt);
+        responseContent = await runGemini('gemini-1.5-pro', messages, currentPrompt);
       } catch (err1) {
         console.warn("Gemini Pro failed, falling back to OpenRouter:", err1.message);
         try {
           responseContent = await runOpenAI(openrouter, 'anthropic/claude-3.5-sonnet', messages, currentPrompt);
         } catch (err2) {
           console.warn("OpenRouter failed, falling back to Groq:", err2.message);
-          responseContent = await runOpenAI(groq, 'llama-3.1-70b-versatile', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
         }
       }
       return res.json({ role: 'assistant', content: responseContent });
