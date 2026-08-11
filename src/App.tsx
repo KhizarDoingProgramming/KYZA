@@ -155,6 +155,12 @@ export default function App() {
       delete storedTitles[sessionId];
       localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
 
+      const deletedSessions = JSON.parse(localStorage.getItem('kyza_deleted_sessions') || '[]');
+      if (!deletedSessions.includes(sessionId)) {
+          deletedSessions.push(sessionId);
+          localStorage.setItem('kyza_deleted_sessions', JSON.stringify(deletedSessions));
+      }
+
       if (import.meta.env.VITE_SUPABASE_URL && user) {
           const { error } = await supabase.from('chats').delete().eq('session_id', sessionId);
           if (error) console.error("Supabase delete error:", error);
@@ -204,7 +210,11 @@ export default function App() {
              }, {});
              
              const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
-             const historyArray = Object.keys(history).map(sid => ({
+             const deletedSessions = JSON.parse(localStorage.getItem('kyza_deleted_sessions') || '[]');
+             
+             const historyArray = Object.keys(history)
+              .filter(sid => !deletedSessions.includes(sid))
+              .map(sid => ({
                  sessionId: sid,
                  messages: history[sid],
                  title: storedTitles[sid] || history[sid][0]?.content?.substring(0, 30) + '...',
