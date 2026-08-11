@@ -152,9 +152,6 @@ export default function App() {
       }
       
       const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
-      delete storedTitles[sessionId];
-      localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
-
       const deletedSessions = JSON.parse(localStorage.getItem('kyza_deleted_sessions') || '[]');
       if (!deletedSessions.includes(sessionId)) {
           deletedSessions.push(sessionId);
@@ -162,8 +159,12 @@ export default function App() {
       }
 
       if (import.meta.env.VITE_SUPABASE_URL && user) {
-          const { error } = await supabase.from('chats').delete().eq('session_id', sessionId);
-          if (error) console.error("Supabase delete error:", error);
+          // Log it in the deleted_chats table so it's hidden across devices
+          const { error } = await supabase.from('deleted_chats').insert([{
+              session_id: sessionId,
+              user_id: user.id
+          }]);
+          if (error) console.error("Supabase insert deleted_chat error:", error);
       }
       setChatToDelete(null);
   };
@@ -210,7 +211,15 @@ export default function App() {
              }, {});
              
              const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
-             const deletedSessions = JSON.parse(localStorage.getItem('kyza_deleted_sessions') || '[]');
+             let deletedSessions = JSON.parse(localStorage.getItem('kyza_deleted_sessions') || '[]');
+             
+             // Fetch remote deleted sessions to sync across devices
+             const { data: remoteDeleted, error: delError } = await supabase.from('deleted_chats').select('session_id').eq('user_id', currentUser.id);
+             if (!delError && remoteDeleted) {
+                 const remoteSids = remoteDeleted.map((d: any) => d.session_id);
+                 deletedSessions = Array.from(new Set([...deletedSessions, ...remoteSids]));
+                 localStorage.setItem('kyza_deleted_sessions', JSON.stringify(deletedSessions));
+             }
              
              const historyArray = Object.keys(history)
               .filter(sid => !deletedSessions.includes(sid))
