@@ -128,31 +128,28 @@ app.post('/api/chat', async (req, res) => {
     } else if (model === 'atlas') {
       // Atlas 1.1: Try Gemini Flash -> fallback OpenRouter -> fallback DeepSeek
       try {
-        console.log("Atlas: Attempting Gemini Flash...");
-        responseContent = await runGemini('gemini-1.5-flash', messages, currentPrompt);
+        responseContent = await runGemini('gemini-3.5-flash', messages, currentPrompt);
       } catch (err1) {
         console.warn("Gemini Flash failed, falling back to OpenRouter:", err1.message);
         try {
-          responseContent = await runOpenAI(openrouter, 'google/gemini-1.5-flash', messages, currentPrompt);
+          responseContent = await runOpenAI(openrouter, 'google/gemini-3.5-flash', messages, currentPrompt);
         } catch (err2) {
-          console.warn("OpenRouter failed, falling back to DeepSeek:", err2.message);
-          responseContent = await runOpenAI(deepseek, 'deepseek-coder', messages, currentPrompt);
+          responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
         }
       }
       return res.json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'helix') {
-      // Helix 1.1: Try Gemini Pro -> fallback OpenRouter -> fallback Groq 70b
+      // Helix 1.1: Try Groq 70b -> fallback OpenRouter -> fallback Gemini Flash
       try {
-        console.log("Helix: Attempting Gemini Pro...");
-        responseContent = await runGemini('gemini-1.5-pro', messages, currentPrompt);
+        responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
       } catch (err1) {
-        console.warn("Gemini Pro failed, falling back to OpenRouter:", err1.message);
+        console.warn("Groq failed, falling back to OpenRouter:", err1.message);
         try {
-          responseContent = await runOpenAI(openrouter, 'anthropic/claude-3.5-sonnet', messages, currentPrompt);
+          responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
         } catch (err2) {
-          console.warn("OpenRouter failed, falling back to Groq:", err2.message);
-          responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
+          console.warn("OpenRouter failed, falling back to Gemini:", err2.message);
+          responseContent = await runGemini('gemini-3.5-flash', messages, currentPrompt);
         }
       }
       return res.json({ role: 'assistant', content: responseContent });

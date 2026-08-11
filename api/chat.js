@@ -115,24 +115,24 @@ export default async function handler(req, res) {
       
     } else if (model === 'atlas') {
       try {
-        responseContent = await runGemini('gemini-1.5-flash', messages, genAI, currentPrompt);
+        responseContent = await runGemini('gemini-3.5-flash', messages, genAI, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(openrouter, 'google/gemini-1.5-flash', messages, currentPrompt);
+          responseContent = await runOpenAI(openrouter, 'google/gemini-3.5-flash', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runOpenAI(deepseek, 'deepseek-coder', messages, currentPrompt);
+          responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'helix') {
       try {
-        responseContent = await runGemini('gemini-1.5-pro', messages, genAI, currentPrompt);
+        responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(openrouter, 'anthropic/claude-3.5-sonnet', messages, currentPrompt);
+          responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
+          responseContent = await runGemini('gemini-3.5-flash', messages, genAI, currentPrompt);
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });
