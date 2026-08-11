@@ -271,6 +271,11 @@ export default function App() {
   };
 
   const speakWithHorimiyaVoice = (text: string) => {
+    // Chrome Web Speech API bug fix: cancel any stuck previous speech
+    window.speechSynthesis.cancel();
+
+    if (!text || text.trim() === '') return; // Don't speak if there's no text left (e.g. only code blocks)
+
     const u = new SpeechSynthesisUtterance(text);
     u.pitch = 1.3; // Bright, anime girl pitch
     u.rate = 1.05; // Slightly faster, energetic
