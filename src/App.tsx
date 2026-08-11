@@ -150,8 +150,6 @@ export default function App() {
       if (currentSessionId === sessionId) {
           handleNewChat();
       }
-      
-      const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
       const deletedSessions = JSON.parse(localStorage.getItem('kyza_deleted_sessions') || '[]');
       if (!deletedSessions.includes(sessionId)) {
           deletedSessions.push(sessionId);
