@@ -111,6 +111,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   
   // Mobile Responsiveness
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -690,10 +691,16 @@ export default function App() {
                                   {msg.attachments && msg.attachments.length > 0 && (
                                       <div style={{display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap'}}>
                                          {msg.attachments.map((att: string, idx: number) => (
-                                            <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
-                                               <img src={att} alt="attachment" style={{width: '200px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', display: 'block'}} />
-                                               <button 
-                                                  onClick={() => {
+                                             <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
+                                                <img 
+                                                   src={att} 
+                                                   alt="attachment" 
+                                                   style={{width: '200px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', display: 'block', cursor: 'zoom-in'}} 
+                                                   onClick={() => setPreviewImage(att)}
+                                                />
+                                                <button 
+                                                   onClick={(e) => {
+                                                       e.stopPropagation();
                                                       const a = document.createElement('a');
                                                       a.href = att;
                                                       a.download = `kyza-image-${idx}.png`;
@@ -1064,18 +1071,13 @@ export default function App() {
 
       <AnimatePresence>
         {chatToDelete && (
-          <motion.div 
-             initial={{ opacity: 0 }} 
-             animate={{ opacity: 1 }} 
-             exit={{ opacity: 0 }} 
-             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-          >
-             <div style={{ background: 'var(--surface)', padding: '30px', borderRadius: '20px', textAlign: 'center', maxWidth: '350px', border: '1px solid var(--border)' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
+             <div style={{ background: 'var(--surface-sunken)', border: '1px solid var(--hairline-strong)', borderRadius: '24px', padding: '32px', width: '90%', maxWidth: '400px', color: 'var(--text-main)', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
                 <h3 style={{ marginBottom: '10px' }}>Delete Chat</h3>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '25px', fontSize: '14px', lineHeight: '1.5' }}>
+                <p style={{ color: 'var(--text-sub)', lineHeight: 1.5, margin: 0 }}>
                   Are you sure you want to delete this chat? This action cannot be undone.
                 </p>
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
                     <button onClick={() => setChatToDelete(null)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '12px', cursor: 'pointer', fontWeight: 500 }} className="hover-bg">
                         Cancel
                     </button>
@@ -1084,7 +1086,28 @@ export default function App() {
                     </button>
                 </div>
              </div>
-          </motion.div>
+          </div>
+        )}
+
+        {previewImage && (
+           <div 
+              onClick={() => setPreviewImage(null)} 
+              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)', cursor: 'zoom-out' }}
+           >
+              <img 
+                 src={previewImage} 
+                 alt="Preview Fullscreen" 
+                 style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '12px', objectFit: 'contain', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }} 
+                 onClick={(e) => e.stopPropagation()} 
+              />
+              <button 
+                 onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}
+                 style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '12px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}
+                 title="Close Preview"
+              >
+                 <X size={24} />
+              </button>
+           </div>
         )}
       </AnimatePresence>
 
