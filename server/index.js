@@ -112,12 +112,12 @@ app.post('/api/chat', async (req, res) => {
     if (model === 'nova') {
       // Nova 1.1: Try Groq -> fallback Cerebras -> fallback DeepSeek
       try {
-        console.log("Nova: Attempting Groq (llama3-8b-8192)...");
-        responseContent = await runOpenAI(groq, 'llama3-8b-8192', messages, currentPrompt);
+        console.log("Nova: Attempting Groq (groq/compound-mini)...");
+        responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
       } catch (err1) {
         console.warn("Groq failed, falling back to Cerebras:", err1.message);
         try {
-          responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages, currentPrompt);
+          responseContent = await runOpenAI(cerebras, 'gemma-4-31b', messages, currentPrompt);
         } catch (err2) {
           console.warn("Cerebras failed, falling back to DeepSeek:", err2.message);
           responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
@@ -140,9 +140,9 @@ app.post('/api/chat', async (req, res) => {
       return res.json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'helix') {
-      // Helix 1.1: Try Groq 70b -> fallback OpenRouter -> fallback Gemini Flash
+      // Helix 1.1: Try Groq -> fallback OpenRouter -> fallback Gemini Flash
       try {
-        responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
+        responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
       } catch (err1) {
         console.warn("Groq failed, falling back to OpenRouter:", err1.message);
         try {

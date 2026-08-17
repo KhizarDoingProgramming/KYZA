@@ -103,10 +103,10 @@ export default async function handler(req, res) {
   try {
     if (model === 'nova') {
       try {
-        responseContent = await runOpenAI(groq, 'llama3-8b-8192', messages, currentPrompt);
+        responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages, currentPrompt);
+          responseContent = await runOpenAI(cerebras, 'gemma-4-31b', messages, currentPrompt);
         } catch (err2) {
           responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
         }
@@ -127,7 +127,7 @@ export default async function handler(req, res) {
       
     } else if (model === 'helix') {
       try {
-        responseContent = await runOpenAI(groq, 'llama-3.3-70b-versatile', messages, currentPrompt);
+        responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
       } catch (err1) {
         try {
           responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
