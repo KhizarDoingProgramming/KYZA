@@ -99,11 +99,23 @@ async function runGemini(modelName, messages, systemPrompt) {
 }
 
 app.post('/api/chat', async (req, res) => {
-  const { model, messages, isNinaMode } = req.body;
+  let { model, messages, isNinaMode } = req.body;
   const currentPrompt = isNinaMode ? NINA_SYSTEM_PROMPT : KYZA_SYSTEM_PROMPT;
   
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Messages array is required.' });
+  }
+
+  const hasAttachments = messages.some(m => m.attachments && m.attachments.length > 0);
+  
+  // If in Nina mode, prevent using Prism (image generator) and force a conversational model
+  if (isNinaMode && model === 'prism') {
+    model = 'nova';
+  }
+
+  // If the user uploaded an image, force use Atlas (Gemini) because Groq/Cerebras don't support vision format
+  if (hasAttachments) {
+    model = 'atlas';
   }
 
   let responseContent = '';
