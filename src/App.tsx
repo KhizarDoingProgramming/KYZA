@@ -271,52 +271,57 @@ export default function App() {
   };
 
   const speakWithHorimiyaVoice = (text: string) => {
-    // Chrome Web Speech API bug fix: cancel any stuck previous speech
-    window.speechSynthesis.cancel();
+    if (!text || text.trim() === '') return; // Don't speak if there's no text left
 
-    if (!text || text.trim() === '') return; // Don't speak if there's no text left (e.g. only code blocks)
-
-    // Delay speaking slightly to prevent Chrome from silently dropping the speech after cancel()
-    setTimeout(() => {
+    const speakFn = () => {
         const u = new SpeechSynthesisUtterance(text);
-        // Save utterance globally to prevent aggressive Garbage Collection from stopping it mid-sentence
+        // Save utterance globally to prevent aggressive Garbage Collection
         (window as any).currentUtterance = u;
         
         u.pitch = 1.3; // Bright, anime girl pitch
         u.rate = 1.05; // Slightly faster, energetic
+        u.onerror = (e) => console.error("TTS Error:", e);
     
-    const voices = window.speechSynthesis.getVoices();
-    
-    // Check if the text contains Urdu/Arabic characters
-    const hasUrdu = /[\u0600-\u06FF]/.test(text);
-    
-    let voiceToUse;
-    if (hasUrdu) {
-        // Find the absolute best Urdu/Hindi voice available on the user's device
-        voiceToUse = 
-            voices.find(v => v.lang === 'ur-PK' && (v.name.includes('Female') || v.name.includes('Google'))) ||
-            voices.find(v => v.lang.includes('ur') && (v.name.includes('Female') || v.name.includes('Google'))) ||
-            voices.find(v => v.lang.includes('ur')) ||
-            voices.find(v => v.lang.includes('hi') && (v.name.includes('Female') || v.name.includes('Google'))) ||
-            voices.find(v => v.lang.includes('hi'));
-            
-        // Reset pitch/rate for natural Urdu (high pitch ruins the Desi TTS engines)
-        u.pitch = 1.0; 
-        u.rate = 1.0;
+        const voices = window.speechSynthesis.getVoices();
+        
+        // Check if the text contains Urdu/Arabic characters
+        const hasUrdu = /[\u0600-\u06FF]/.test(text);
+        
+        let voiceToUse;
+        if (hasUrdu) {
+            voiceToUse = 
+                voices.find(v => v.lang === 'ur-PK' && (v.name.includes('Female') || v.name.includes('Google'))) ||
+                voices.find(v => v.lang.includes('ur') && (v.name.includes('Female') || v.name.includes('Google'))) ||
+                voices.find(v => v.lang.includes('ur')) ||
+                voices.find(v => v.lang.includes('hi') && (v.name.includes('Female') || v.name.includes('Google'))) ||
+                voices.find(v => v.lang.includes('hi'));
+                
+            u.pitch = 1.0; 
+            u.rate = 1.0;
+            u.lang = voiceToUse ? voiceToUse.lang : 'ur-PK';
+        } else {
+            // Fallback to female English voice
+            voiceToUse = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Google') || v.name.includes('Microsoft Zira') || v.name.includes('Samantha'))) || 
+                         voices.find(v => v.name.includes('Female')) || 
+                         voices.find(v => v.lang.includes('en-US')) ||
+                         voices.find(v => v.lang.includes('en'));
+            u.lang = voiceToUse ? voiceToUse.lang : 'en-US';
+        }
+        
+        if (voiceToUse) {
+            u.voice = voiceToUse;
+        }
+        
+        window.speechSynthesis.speak(u);
+    };
+
+    // Only cancel if there is actively something speaking/pending, otherwise blind cancel() breaks Chrome TTS
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+        setTimeout(speakFn, 100);
+    } else {
+        speakFn();
     }
-    
-    if (!voiceToUse) {
-        // Fallback to female English voice
-        voiceToUse = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Google'))) || 
-                     voices.find(v => v.name.includes('Female')) || 
-                     voices.find(v => v.lang.includes('en'));
-    }
-    
-    if (voiceToUse) {
-        u.voice = voiceToUse;
-    }
-    window.speechSynthesis.speak(u);
-    }, 50);
   };
 
   useEffect(() => {
