@@ -276,9 +276,14 @@ export default function App() {
 
     if (!text || text.trim() === '') return; // Don't speak if there's no text left (e.g. only code blocks)
 
-    const u = new SpeechSynthesisUtterance(text);
-    u.pitch = 1.3; // Bright, anime girl pitch
-    u.rate = 1.05; // Slightly faster, energetic
+    // Delay speaking slightly to prevent Chrome from silently dropping the speech after cancel()
+    setTimeout(() => {
+        const u = new SpeechSynthesisUtterance(text);
+        // Save utterance globally to prevent aggressive Garbage Collection from stopping it mid-sentence
+        (window as any).currentUtterance = u;
+        
+        u.pitch = 1.3; // Bright, anime girl pitch
+        u.rate = 1.05; // Slightly faster, energetic
     
     const voices = window.speechSynthesis.getVoices();
     
@@ -311,6 +316,7 @@ export default function App() {
         u.voice = voiceToUse;
     }
     window.speechSynthesis.speak(u);
+    }, 50);
   };
 
   useEffect(() => {
@@ -458,6 +464,12 @@ export default function App() {
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
+    // Pre-load voices for Chrome
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
