@@ -139,7 +139,7 @@ export default async function handler(req, res) {
       
     } else if (model === 'prism') {
       const promptText = messages[messages.length - 1].content;
-      const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;
       
       try {
         const imageRes = await fetch(imageUrl);
