@@ -160,11 +160,24 @@ app.post('/api/chat', async (req, res) => {
       const promptText = messages[messages.length - 1].content;
       const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;
       
-      return res.json({ 
-        role: 'assistant', 
-        content: `Here is the image you requested for: "${promptText}"`, 
-        attachments: [imageUrl]
-      });
+      try {
+        const imageRes = await fetch(imageUrl);
+        const arrayBuffer = await imageRes.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString('base64');
+        const dataUrl = `data:image/jpeg;base64,${base64}`;
+        
+        return res.json({ 
+          role: 'assistant', 
+          content: `Here is the image you requested for: "${promptText}"`, 
+          attachments: [dataUrl]
+        });
+      } catch (err) {
+        return res.json({ 
+          role: 'assistant', 
+          content: `Here is the image you requested for: "${promptText}"`, 
+          attachments: [imageUrl]
+        });
+      }
     }
 
     res.status(400).json({ error: 'Unknown model specified' });
