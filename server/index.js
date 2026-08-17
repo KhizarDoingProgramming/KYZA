@@ -112,8 +112,8 @@ app.post('/api/chat', async (req, res) => {
     if (model === 'nova') {
       // Nova 1.1: Try Groq -> fallback Cerebras -> fallback DeepSeek
       try {
-        console.log("Nova: Attempting Groq (llama-3.1-8b-instant)...");
-        responseContent = await runOpenAI(groq, 'llama-3.1-8b-instant', messages, currentPrompt);
+        console.log("Nova: Attempting Groq (llama3-8b-8192)...");
+        responseContent = await runOpenAI(groq, 'llama3-8b-8192', messages, currentPrompt);
       } catch (err1) {
         console.warn("Groq failed, falling back to Cerebras:", err1.message);
         try {
@@ -155,22 +155,15 @@ app.post('/api/chat', async (req, res) => {
       return res.json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'prism') {
-      // Prism 1.2: HuggingFace Stable Diffusion
-      console.log("Prism: Attempting HuggingFace...");
+      // Prism 1.2: Pollinations AI
+      console.log("Prism: Attempting Pollinations...");
       const promptText = messages[messages.length - 1].content;
-      const response = await hf.textToImage({
-        model: 'stabilityai/stable-diffusion-xl-base-1.0',
-        inputs: promptText,
-      });
-      
-      const arrayBuffer = await response.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
-      const dataUrl = `data:${response.type};base64,${base64}`;
+      const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;
       
       return res.json({ 
         role: 'assistant', 
         content: `Here is the image you requested for: "${promptText}"`, 
-        attachments: [dataUrl]
+        attachments: [imageUrl]
       });
     }
 

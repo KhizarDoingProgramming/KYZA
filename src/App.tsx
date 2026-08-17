@@ -301,8 +301,10 @@ export default function App() {
     }
     
     if (!voiceToUse) {
-        // Fallback to anime/female English voice
-        voiceToUse = voices.find(v => v.lang.includes('ja') || v.name.includes('Female') || v.name.includes('Google UK English Female'));
+        // Fallback to female English voice
+        voiceToUse = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Google'))) || 
+                     voices.find(v => v.name.includes('Female')) || 
+                     voices.find(v => v.lang.includes('en'));
     }
     
     if (voiceToUse) {

@@ -103,7 +103,7 @@ export default async function handler(req, res) {
   try {
     if (model === 'nova') {
       try {
-        responseContent = await runOpenAI(groq, 'llama-3.1-8b-instant', messages, currentPrompt);
+        responseContent = await runOpenAI(groq, 'llama3-8b-8192', messages, currentPrompt);
       } catch (err1) {
         try {
           responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages, currentPrompt);
@@ -139,19 +139,12 @@ export default async function handler(req, res) {
       
     } else if (model === 'prism') {
       const promptText = messages[messages.length - 1].content;
-      const response = await hf.textToImage({
-        model: 'stabilityai/stable-diffusion-xl-base-1.0',
-        inputs: promptText,
-      });
-      
-      const arrayBuffer = await response.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
-      const dataUrl = `data:${response.type};base64,${base64}`;
+      const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;
       
       return res.status(200).json({ 
         role: 'assistant', 
         content: `Here is the image you requested for: "${promptText}"`, 
-        attachments: [dataUrl]
+        attachments: [imageUrl]
       });
     }
 
