@@ -106,6 +106,7 @@ export default function App() {
   const [imageGenEnabled, setImageGenEnabled] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Auth & Free Tier State
   const [user, setUser] = useState<User | null>(null);
@@ -121,6 +122,10 @@ export default function App() {
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
 
   const handleNewChat = () => {
       const newId = 'anon-' + Math.random().toString(36).substring(2, 15);
@@ -330,8 +335,14 @@ export default function App() {
   }, [theme]);
 
   const autoSize = (el: HTMLTextAreaElement) => {
+    const scrollTop = el.scrollTop;
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
+    if (el.selectionStart === el.value.length) {
+       el.scrollTop = el.scrollHeight;
+    } else {
+       el.scrollTop = scrollTop;
+    }
   };
 
   const handleSend = async () => {
@@ -765,6 +776,7 @@ export default function App() {
                             </motion.article>
                          )}
                        </AnimatePresence>
+                       <div ref={messagesEndRef} />
                     </div>
               </div>
             </div>
@@ -819,6 +831,22 @@ export default function App() {
                  />
 
                  <div className="composer-box glass">
+                    {attachments.length > 0 && (
+                       <div style={{ display: 'flex', gap: '8px', padding: '8px 8px 0 8px', flexWrap: 'wrap' }}>
+                          {attachments.map((att, idx) => (
+                             <div key={idx} style={{ position: 'relative' }}>
+                                <img src={att} alt="preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--hairline-strong)' }} />
+                                <button 
+                                   type="button"
+                                   onClick={() => setAttachments(prev => prev.filter((_, i) => i !== idx))}
+                                   style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--surface-strong)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+                                >
+                                   <X size={12} />
+                                </button>
+                             </div>
+                          ))}
+                       </div>
+                    )}
                     <textarea 
                        ref={textareaRef}
                        rows={1}
