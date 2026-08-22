@@ -93,6 +93,15 @@ const LandingPage = ({ onLoginSuccess, isMobile }: { onLoginSuccess: any, isMobi
   return (
     <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', width: '100vw', background: 'var(--canvas)', overflow: 'hidden' }}>
        <button 
+          onClick={async () => {
+             const { supabase } = await import('./lib/supabase');
+             await supabase.auth.signInWithOAuth({
+                 provider: 'google',
+                 options: {
+                     redirectTo: window.location.origin
+                 }
+             });
+          }}
           style={{ position: 'absolute', top: '24px', right: '24px', padding: '10px 20px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', zIndex: 10, fontSize: '14px', letterSpacing: '0.5px' }}
           className="hover-bg"
        >
