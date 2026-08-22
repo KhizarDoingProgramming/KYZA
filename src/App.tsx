@@ -1060,7 +1060,7 @@ export default function App() {
                         <iframe 
                            srcDoc={activeArtifact.content} 
                            style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px', background: '#fff' }} 
-                           sandbox="allow-scripts"
+                           sandbox="allow-scripts allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox allow-same-origin"
                         />
                     ) : activeArtifact.type === 'csv' ? (
                         <div style={{ background: 'var(--surface-card)', borderRadius: '8px', overflowX: 'auto', border: '1px solid var(--hairline-strong)' }}>
