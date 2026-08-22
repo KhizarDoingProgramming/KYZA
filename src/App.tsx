@@ -89,6 +89,38 @@ const getGreeting = () => {
     }
 };
 
+const LandingPage = ({ onLoginSuccess, isMobile }: { onLoginSuccess: any, isMobile: boolean }) => {
+  return (
+    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', width: '100vw', background: 'var(--canvas)', overflow: 'hidden' }}>
+       <button 
+          style={{ position: 'absolute', top: '24px', right: '24px', padding: '10px 20px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', zIndex: 10, fontSize: '14px', letterSpacing: '0.5px' }}
+          className="hover-bg"
+       >
+          TRY KYZA
+       </button>
+       
+       <div style={{ flex: isMobile ? 1 : '1 1 50%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: isMobile ? 'none' : '1px solid var(--hairline-strong)', borderBottom: isMobile ? '1px solid var(--hairline-strong)' : 'none', padding: '40px', background: 'var(--surface)' }}>
+          <iframe src="/kyza-ad.html" style={{ width: '100%', maxWidth: '600px', height: '100%', maxHeight: '800px', border: 'none', borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }} title="KYZA Ad" />
+       </div>
+
+       <div style={{ flex: isMobile ? 1 : '1 1 50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '40px' }}>
+          
+          <img src="/favicon.jpeg" alt="Kyza Logo" style={{ width: '140px', height: '140px', borderRadius: '32px', marginBottom: '32px', boxShadow: '0 12px 48px rgba(0,0,0,0.4)', border: '1px solid var(--hairline-strong)' }} />
+          <h1 style={{ fontSize: '36px', fontWeight: 700, color: 'var(--ink)', marginBottom: '12px', textAlign: 'center', letterSpacing: '-0.5px' }}>Welcome to KYZA</h1>
+          <p style={{ color: 'var(--text-sub)', marginBottom: '40px', fontSize: '16px', textAlign: 'center', maxWidth: '300px' }}>Your personal AI assistant. Log in to get started.</p>
+          
+          <div style={{ transform: 'scale(1.1)' }}>
+              <GoogleLogin 
+                 onSuccess={onLoginSuccess}
+                 onError={() => console.error('Login Failed')}
+                 useOneTap
+              />
+          </div>
+       </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -123,6 +155,7 @@ export default function App() {
   
   
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -190,9 +223,11 @@ export default function App() {
     const initAuth = async () => {
        const { data: { session } } = await supabase.auth.getSession();
        setUser(session?.user ?? null);
+       setIsAuthLoading(false);
        
        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
           setUser(newSession?.user ?? null);
+          setIsAuthLoading(false);
           if (newSession?.user) {
              
              const { error: updateError } = await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionId).is('user_id', null);
@@ -533,6 +568,20 @@ export default function App() {
       setIsRecording(true);
     }
   };
+
+  if (isAuthLoading) {
+      return (
+          <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--canvas)' }}>
+              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                  <Sparkles size={32} color="var(--primary)" />
+              </motion.div>
+          </div>
+      );
+  }
+
+  if (!user) {
+      return <LandingPage onLoginSuccess={handleGoogleLogin} isMobile={isMobile} />;
+  }
 
   return (
     <div className="app-root">
