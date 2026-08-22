@@ -89,19 +89,11 @@ const getGreeting = () => {
     }
 };
 
-const LandingPage = ({ onLoginSuccess, isMobile }: { onLoginSuccess: any, isMobile: boolean }) => {
+const LandingPage = ({ onLoginSuccess, onTryGuest, isMobile }: { onLoginSuccess: any, onTryGuest: () => void, isMobile: boolean }) => {
   return (
     <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', width: '100vw', background: 'var(--canvas)', overflow: 'hidden' }}>
        <button 
-          onClick={async () => {
-             const { supabase } = await import('./lib/supabase');
-             await supabase.auth.signInWithOAuth({
-                 provider: 'google',
-                 options: {
-                     redirectTo: window.location.origin
-                 }
-             });
-          }}
+          onClick={onTryGuest}
           style={{ position: 'absolute', top: '24px', right: '24px', padding: '10px 20px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', zIndex: 10, fontSize: '14px', letterSpacing: '0.5px' }}
           className="hover-bg"
        >
@@ -165,6 +157,7 @@ export default function App() {
   
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -588,8 +581,8 @@ export default function App() {
       );
   }
 
-  if (!user) {
-      return <LandingPage onLoginSuccess={handleGoogleLogin} isMobile={isMobile} />;
+  if (!user && !isGuest) {
+      return <LandingPage onLoginSuccess={handleGoogleLogin} onTryGuest={() => setIsGuest(true)} isMobile={isMobile} />;
   }
 
   return (
