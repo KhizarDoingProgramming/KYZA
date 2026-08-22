@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2, Eye } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2, Eye } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -103,13 +103,24 @@ const getGreeting = () => {
 const LandingPage = ({ onLoginSuccess, onTryGuest, isMobile }: { onLoginSuccess: any, onTryGuest: () => void, isMobile: boolean }) => {
   return (
     <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', width: '100vw', background: 'var(--canvas)', overflow: 'hidden' }}>
-       <button 
-          onClick={onTryGuest}
-          style={{ position: 'absolute', top: '24px', right: '24px', padding: '10px 20px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', zIndex: 10, fontSize: '14px', letterSpacing: '0.5px' }}
-          className="hover-bg"
-       >
-          TRY KYZA
-       </button>
+       <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 }}>
+          <motion.div 
+             animate={{ x: [0, 8, 0] }}
+             transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+             style={{ display: 'flex', color: 'var(--primary)', alignItems: 'center' }}
+          >
+             <ChevronRight size={18} style={{ marginRight: '-8px' }} strokeWidth={3} />
+             <ChevronRight size={18} style={{ marginRight: '-8px', opacity: 0.7 }} strokeWidth={3} />
+             <ChevronRight size={18} style={{ opacity: 0.4 }} strokeWidth={3} />
+          </motion.div>
+          <button 
+             onClick={onTryGuest}
+             style={{ padding: '10px 20px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', fontSize: '14px', letterSpacing: '0.5px' }}
+             className="hover-bg"
+          >
+             TRY KYZA
+          </button>
+       </div>
        
        <div style={{ flex: isMobile ? 1 : '1 1 50%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: isMobile ? 'none' : '1px solid var(--hairline-strong)', borderBottom: isMobile ? '1px solid var(--hairline-strong)' : 'none', padding: '40px', background: 'var(--surface)' }}>
           <iframe src="/kyza-ad.html" style={{ width: '100%', maxWidth: '600px', height: '100%', maxHeight: '800px', border: 'none', borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }} title="KYZA Ad" />
