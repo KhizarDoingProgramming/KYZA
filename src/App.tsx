@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2 } from 'lucide-react';
+import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2, Eye } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -23,7 +23,7 @@ const getSessionId = () => {
     return id;
 };
 
-const renderMessageContent = (content: string) => {
+const renderMessageContent = (content: string, onPreview?: (type: string, content: string) => void) => {
     if (!content) return null;
     const parts = content.split(/(```[\w]*\n[\s\S]*?```)/g);
     return parts.map((part, index) => {
@@ -63,6 +63,17 @@ const renderMessageContent = (content: string) => {
                                     <Download size={14} />
                                     Download
                                 </button>
+                                {(language === 'html' || language === 'svg' || language === 'csv' || language === 'markdown') && onPreview && (
+                                    <button 
+                                        onClick={() => onPreview(language, code.trim())}
+                                        style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        className="hover-text"
+                                        title="Preview UI"
+                                    >
+                                        <Eye size={14} />
+                                        Preview
+                                    </button>
+                                )}
                             </div>
                         </div>
                         <div style={{ padding: '12px', overflowX: 'auto', whiteSpace: 'pre', fontSize: '13px', fontFamily: 'monospace' }}>
@@ -796,7 +807,7 @@ export default function App() {
                                      background: msg.role === 'user' ? 'var(--surface-card)' : 'transparent',
                                      color: 'var(--ink)'
                                   }}>
-                                     {renderMessageContent(msg.content)}
+                                     {renderMessageContent(msg.content, (type, content) => setActiveArtifact({type, content}))}
                                   </div>
 
                                   {msg.attachments && msg.attachments.length > 0 && (
