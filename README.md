@@ -1,6 +1,8 @@
 # 🚀 KYZA - Next-Gen AI Assistant 🤖✨
 
 <div align="center">
+  
+<img src="./public/favicon.jpeg" alt="KYZA Logo" width="120" style="border-radius: 20%; margin-bottom: 20px;"/>
 
 ![KYZA Banner](https://capsule-render.vercel.app/api?type=waving&color=d97757&height=250&section=header&text=KYZA&fontSize=90&animation=fadeIn&fontAlignY=38&desc=Your%20Personal%20AI%20Sidekick&descAlignY=51&descAlign=62)
 
