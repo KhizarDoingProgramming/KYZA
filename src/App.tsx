@@ -90,31 +90,31 @@ export default function App() {
   const [isIncognito, setIsIncognito] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('kyza-theme') || 'light');
   
-  // Multimodal State
+  
   const [attachments, setAttachments] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Voice State
+  
   const [isRecording, setIsRecording] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<{type: string, content: string} | null>(null);
   
-  // Dropdowns
+  
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   
-  // States for buttons
+  
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [imageGenEnabled, setImageGenEnabled] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Auth & Free Tier State
+  
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   
-  // Mobile Responsiveness
+  
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -163,7 +163,7 @@ export default function App() {
       }
 
       if (import.meta.env.VITE_SUPABASE_URL && user) {
-          // Log it in the deleted_chats table so it's hidden across devices
+          
           const { error } = await supabase.from('deleted_chats').insert([{
               session_id: sessionId,
               user_id: user.id
@@ -181,7 +181,7 @@ export default function App() {
        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
           setUser(newSession?.user ?? null);
           if (newSession?.user) {
-             // Wait until session is ready
+             
              const { error: updateError } = await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionId).is('user_id', null);
              if (updateError) console.error("Supabase update error:", updateError);
              fetchChats(newSession.user);
@@ -217,7 +217,7 @@ export default function App() {
              const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
              let deletedSessions = JSON.parse(localStorage.getItem('kyza_deleted_sessions') || '[]');
              
-             // Fetch remote deleted sessions to sync across devices
+             
              const { data: remoteDeleted, error: delError } = await supabase.from('deleted_chats').select('session_id').eq('user_id', currentUser.id);
              if (!delError && remoteDeleted) {
                  const remoteSids = remoteDeleted.map((d: any) => d.session_id);
@@ -251,7 +251,7 @@ export default function App() {
     }
   };
   
-  // Re-fetch when currentSessionId changes
+  
   useEffect(() => {
      if (currentSessionId) {
          sessionStorage.setItem('kyza_session_id', currentSessionId);
@@ -280,16 +280,16 @@ export default function App() {
 
     const speakFn = () => {
         const u = new SpeechSynthesisUtterance(text);
-        // Save utterance globally to prevent aggressive Garbage Collection
+        
         (window as any).currentUtterance = u;
         
-        u.pitch = 1.3; // Bright, anime girl pitch
-        u.rate = 1.05; // Slightly faster, energetic
+        u.pitch = 1.3; 
+        u.rate = 1.05; 
         u.onerror = (e) => console.error("TTS Error:", e);
     
         const voices = window.speechSynthesis.getVoices();
         
-        // Check if the text contains Urdu/Arabic characters
+        
         const hasUrdu = /[\u0600-\u06FF]/.test(text);
         
         let voiceToUse;
@@ -305,7 +305,7 @@ export default function App() {
             u.rate = 1.0;
             u.lang = voiceToUse ? voiceToUse.lang : 'ur-PK';
         } else {
-            // Fallback to female English voice
+            
             voiceToUse = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Google') || v.name.includes('Microsoft Zira') || v.name.includes('Samantha'))) || 
                          voices.find(v => v.name.includes('Female')) || 
                          voices.find(v => v.lang.includes('en-US')) ||
@@ -320,7 +320,7 @@ export default function App() {
         window.speechSynthesis.speak(u);
     };
 
-    // Only cancel if there is actively something speaking/pending, otherwise blind cancel() breaks Chrome TTS
+    
     if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
         window.speechSynthesis.cancel();
         setTimeout(speakFn, 100);
@@ -376,7 +376,7 @@ export default function App() {
             }]);
             if (insertError) console.error("Supabase insert error (user msg):", insertError);
             
-            // Instantly update sidebar for new chats without re-fetching everything
+            
             setChatHistory(prev => {
                 if (prev.find(h => h.sessionId === currentSessionId)) return prev;
                 const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
@@ -447,7 +447,7 @@ export default function App() {
          setActiveArtifact({ type: 'markdown', content: mdContent });
       }
 
-      // Auto-speak if in Live Mode
+      
       if (isLiveMode) {
           speakWithHorimiyaVoice(data.content.replace(/```[\s\S]*?```/g, '')); // Strip code blocks from speech
       }
@@ -630,7 +630,7 @@ export default function App() {
                     )}
                  </div>
 
-                 {/* Profile / Settings Button at bottom of sidebar */}
+                 {}
                  <div style={{ padding: '12px', borderTop: '1px solid var(--hairline-strong)' }}>
                      <button 
                          onClick={() => user ? setShowProfileModal(true) : setShowAuthModal(true)}
@@ -944,7 +944,7 @@ export default function App() {
             </div>
           </div>
           
-          {/* Artifacts Pane (Split Screen) */}
+          {}
           <AnimatePresence>
             {activeArtifact && (
               <motion.div 
@@ -1009,7 +1009,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Live Mode Full Screen Overlay */}
+      {}
       <AnimatePresence>
          {isLiveMode && (
             <motion.div 
@@ -1028,7 +1028,7 @@ export default function App() {
                <div style={{ flex: 1, position: 'relative' }}>
                    <NinaAvatar />
                    
-                   {/* Top Bar for Exit */}
+                   {}
                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '24px', display: 'flex', justifyContent: 'flex-end', zIndex: 100 }}>
                        <button 
                           onClick={() => setIsLiveMode(false)}
@@ -1044,10 +1044,10 @@ export default function App() {
                        </button>
                    </div>
 
-                   {/* Bottom Controls */}
+                   {}
                    <div style={{ position: 'absolute', bottom: '40px', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', zIndex: 100 }}>
                        
-                        {/* Subtitle / Input box */}
+                        {}
                         <div style={{ width: '90%', maxWidth: '600px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', borderRadius: '16px', padding: '12px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
                             {isLoading ? (
                                 <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Nina is thinking...</div>
@@ -1068,7 +1068,7 @@ export default function App() {
                             )}
                         </div>
 
-                        {/* Mic Button */}
+                        {}
                         <button 
                            onClick={toggleRecording}
                            style={{

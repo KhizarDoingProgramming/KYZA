@@ -14,7 +14,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Initialize Clients
+
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
@@ -71,16 +71,16 @@ async function runOpenAI(client, model, messages, systemPrompt) {
   return completion.choices[0].message.content;
 }
 
-// Helper to run Gemini
+
 async function runGemini(modelName, messages, systemPrompt) {
   const geminiModel = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemPrompt });
   
-  // Format for Gemini SDK
+  
   const formattedContents = messages.map(m => {
     const parts = [{ text: m.content }];
     if (m.attachments && m.attachments.length > 0) {
       m.attachments.forEach(att => {
-        // Strip data prefix: data:image/png;base64,...
+        
         const mimeType = att.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)[1];
         const base64Data = att.split(',')[1];
         parts.push({
@@ -108,12 +108,12 @@ app.post('/api/chat', async (req, res) => {
 
   const hasAttachments = messages.some(m => m.attachments && m.attachments.length > 0);
   
-  // If in Nina mode, prevent using Prism (image generator) and force a conversational model
+  
   if (isNinaMode && model === 'prism') {
     model = 'nova';
   }
 
-  // If the user uploaded an image, force use Atlas (Gemini) because Groq/Cerebras don't support vision format
+  
   if (hasAttachments) {
     model = 'atlas';
   }
@@ -122,7 +122,7 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     if (model === 'nova') {
-      // Nova 1.1: Try Groq -> fallback Cerebras -> fallback DeepSeek
+      
       try {
         console.log("Nova: Attempting Groq (groq/compound-mini)...");
         responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
@@ -138,7 +138,7 @@ app.post('/api/chat', async (req, res) => {
       return res.json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'atlas') {
-      // Atlas 1.1: Try Gemini Flash -> fallback OpenRouter -> fallback DeepSeek
+      
       try {
         responseContent = await runGemini('gemini-3.5-flash', messages, currentPrompt);
       } catch (err1) {
@@ -152,7 +152,7 @@ app.post('/api/chat', async (req, res) => {
       return res.json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'helix') {
-      // Helix 1.1: Try Groq -> fallback OpenRouter -> fallback Gemini Flash
+      
       try {
         responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
       } catch (err1) {
@@ -167,7 +167,7 @@ app.post('/api/chat', async (req, res) => {
       return res.json({ role: 'assistant', content: responseContent });
       
     } else if (model === 'prism') {
-      // Prism 1.2: Pollinations AI
+      
       console.log("Prism: Attempting Pollinations...");
       const promptText = messages[messages.length - 1].content;
       const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;

@@ -1,32 +1,68 @@
-# React + TypeScript + Vite
+# 🚀 KYZA - Next-Gen AI Assistant 🤖✨
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+<div align="center">
 
-Currently, two official plugins are available:
+![KYZA Banner](https://capsule-render.vercel.app/api?type=waving&color=d97757&height=250&section=header&text=KYZA&fontSize=90&animation=fadeIn&fontAlignY=38&desc=Your%20Personal%20AI%20Sidekick&descAlignY=51&descAlign=62)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-kyza.vercel.app-d97757?style=for-the-badge&logo=vercel)](https://kyza.vercel.app)
+[![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)](#)
+[![Vibes](https://img.shields.io/badge/Vibes-Immaculate-purple?style=for-the-badge)](#)
 
-## React Compiler
+</div>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🌟 What is KYZA?
 
-## Expanding the Oxlint configuration
+KYZA isn't just another chat app—it's a whole **vibe**. 💅 Built for the future, this AI assistant is packed with sick features, buttery smooth animations, and top-tier models to help you get stuff done, fast. Whether you're coding, chilling, or generating art, KYZA's got your back. No cap. 🧢
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### ✨ The Preview 
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+<div align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTh1aHNxYWQ1aWJvd3MwNmFtaTNxMGh3eHpweHByNDBucHcwbnJ6ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aD2saalEvpjtW6Q/giphy.gif" alt="AI Vibes Preview" width="600" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
+  <br/>
+  <i>(A glimpse into the futuristic vibes of KYZA)</i>
+</div>
+
+## 🔥 Features that actually slap
+
+- **Multiple Personalities**: Switch between Nova, Atlas, Helix, and Prism. Whatever mood you're in. 🎭
+- **Gen Z Aesthetics**: We ditch the boring layouts for something that actually looks good. 🎨
+- **Image Gen**: Just ask Prism and watch the magic happen. 🖼️
+- **Voice Mode**: Yeah, she speaks. Real-time voice synthesis because typing is so last year. 🗣️
+- **Cloud Sync**: Supabase integration so your chats are always there, wherever you go. ☁️
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React + Vite + TailwindCSS (because obviously)
+- **Backend**: Node.js + Express
+- **Database**: Supabase
+- **Hosting**: Vercel
+- **AI**: Cerebras, DeepSeek, OpenRouter, Pollinations
+
+## 🚀 Getting Started
+
+Want to run this beast locally? Say less.
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/KhizaDoingProgramming/KYZA.git
+
+# 2. Install dependencies (npm, yarn, pnpm - pick your poison)
+npm install
+
+# 3. Setup environment variables
+cp .env.example .env
+# (Add the api keys in the .env file)
+
+# 4. Start the dev server
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 🤝 Contributing
+
+Pull requests are welcome. If you find a bug, open an issue. Let's make this the best AI app on the internet. 🌍
+
+---
+
+<div align="center">
+  <p>Made with ❤️ by <a href="https://github.com/KhizaDoingProgramming">KhizaDoingProgramming</a></p>
+</div>

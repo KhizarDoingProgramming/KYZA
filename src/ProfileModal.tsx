@@ -41,10 +41,10 @@ export default function ProfileModal({ user, onClose, onLogout }: ProfileModalPr
         throw uploadError;
       }
 
-      // Get public URL
+      
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
 
-      // Update user auth metadata
+      
       const { error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: data.publicUrl }
       });

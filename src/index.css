@@ -1,71 +1,55 @@
-/* =============================================================
-   Bimo — streaming AI chat workspace
-   Warm-canvas editorial design system. Cream / coral / dark navy.
-   Fraunces (display serif) · Inter (body) · JetBrains Mono (code).
-   Adapted from the attached Claude-design-analysis spec.
-   ============================================================= */
 
 :root {
-  /* Surface */
-  --canvas: #faf9f5;
+    --canvas: #faf9f5;
   --surface-soft: #f5f0e8;
   --surface-card: #efe9de;
-  --input-bar: #ffffff;          /* message input bar — distinct from the page bg */
-  --landing-nav-bg: rgba(250, 249, 245, 0.88);
+  --input-bar: #ffffff;            --landing-nav-bg: rgba(250, 249, 245, 0.88);
   --surface-cream-strong: #e8e0d2;
   --surface-dark: #181715;
   --surface-dark-elevated: #252320;
   --surface-dark-soft: #1f1e1b;
 
-  /* The user's own message bubble — neutral, not the brand accent */
-  --user-bubble: #e8e4dc;
+    --user-bubble: #e8e4dc;
   --user-bubble-ink: #141413;
 
-  /* Ink */
-  --ink: #141413;
+    --ink: #141413;
   --body-strong: #252523;
   --body: #3d3d3a;
   --muted: #6c6a64;
   --muted-soft: #8e8b82;
 
-  /* Brand */
-  --primary: #d97757;
+    --primary: #d97757;
   --primary-active: #b45739;
   --primary-soft: rgba(217, 119, 87, 0.12);
   --on-primary: #ffffff;
   --on-dark: #faf9f5;
   --on-dark-soft: #a09d96;
 
-  /* Hairlines */
-  --hairline: #e6dfd8;
+    --hairline: #e6dfd8;
   --hairline-soft: #ebe6df;
   --hairline-strong: #d8d0c4;
   --hairline-dark: #2c2a26;
 
-  /* Accent / semantic */
-  --accent-teal: #5db8a6;
+    --accent-teal: #5db8a6;
   --accent-amber: #e8a55a;
   --success: #5db872;
   --warning: #d4a017;
   --error: #c64545;
 
-  /* Radii */
-  --r-xs: 4px;
+    --r-xs: 4px;
   --r-sm: 6px;
   --r-md: 8px;
   --r-lg: 12px;
   --r-xl: 16px;
   --r-pill: 9999px;
 
-  /* Type */
-  --font-display: "Wise Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: "Wise Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: "Poppins", "Fraunces", "Tiempos Headline", "Cormorant Garamond", "EB Garamond", Garamond, "Times New Roman", serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Misc */
-  --shadow-card: 0 1px 3px rgba(20, 20, 19, 0.05);
+    --shadow-card: 0 1px 3px rgba(20, 20, 19, 0.05);
   --shadow-card-hover: 0 6px 24px -8px rgba(20, 20, 19, 0.12);
   --ring-coral: 0 0 0 3px rgba(217, 119, 87, 0.18);
   --composer-border: rgba(20, 20, 19, 0.09);
@@ -76,53 +60,32 @@
   color-scheme: light;
 }
 
-/* =============================================================
-   Dark theme — set via <html data-theme="dark"> (js/prefs.js +
-   the pre-paint script in index.html). The whole UI is driven by
-   the tokens above, so this block alone re-skins the app: the two
-   anchor surfaces map #faf9f5 -> #2c2c2a and #f5f0e8 -> #1a1a19,
-   and every black ink token becomes near-white.
-   ============================================================= */
 :root[data-theme="dark"] {
-  /* Surface */
-  --canvas: #1f1f1e;             /* sidebar + chat + page bg (reference: Claude) */
-  --surface-soft: #1a1a19;       /* user bubble + sidebar hover (darker than bg) */
-  --surface-card: #30302e;       /* elevated: cards, popups, settings */
-  --input-bar: #2c2c2a;          /* message input bar — its own shade above the bg */
-  --landing-nav-bg: rgba(26, 26, 25, 0.85);  /* translucent dark, not a light band */
-  --surface-cream-strong: #35332f;
-  --surface-dark: #141413;       /* the already-dark surfaces go a touch deeper */
-  --surface-dark-elevated: #232321;
+    --canvas: #1f1f1e;               --surface-soft: #1a1a19;         --surface-card: #30302e;         --input-bar: #2c2c2a;            --landing-nav-bg: rgba(26, 26, 25, 0.85);    --surface-cream-strong: #35332f;
+  --surface-dark: #141413;         --surface-dark-elevated: #232321;
   --surface-dark-soft: #1c1b1a;
 
-  /* User bubble — near-black, with the same dull off-white text */
-  --user-bubble: #1a1a19;
+    --user-bubble: #1a1a19;
   --user-bubble-ink: #d6d2ca;
 
-  /* Ink — black text becomes a dull, professional off-white (pure white read
-     too bright). Headings/bold/chat sit just above the icon white (--body). */
-  --ink: #d6d2ca;
+    --ink: #d6d2ca;
   --body-strong: #cfccc4;
   --body: #cdcac3;
-  --muted: #a29e94;          /* nudged brighter so secondary text clears AA on cards */
-  --muted-soft: #75726b;
+  --muted: #a29e94;            --muted-soft: #75726b;
 
-  /* Brand — coral, nudged a touch brighter for dark contrast */
-  --primary: #d97757;
+    --primary: #d97757;
   --primary-active: #e58c6e;
   --primary-soft: rgba(217, 119, 87, 0.16);
   --on-primary: #ffffff;
   --on-dark: #faf9f5;
   --on-dark-soft: #a09d96;
 
-  /* Hairlines — subtle light-on-dark separators */
-  --hairline: #3a3833;
+    --hairline: #3a3833;
   --hairline-soft: #322f2b;
   --hairline-strong: #46433c;
   --hairline-dark: #46433c;
 
-  /* Misc */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-card-hover: 0 8px 28px -10px rgba(0, 0, 0, 0.6);
   --ring-coral: 0 0 0 3px rgba(217, 119, 87, 0.22);
   --composer-border: rgba(255, 255, 255, 0.08);
@@ -133,9 +96,6 @@
   color-scheme: dark;
 }
 
-/* =============================================================
-   Reset
-   ============================================================= */
 
 * { box-sizing: border-box; }
 *::before, *::after { box-sizing: border-box; }
@@ -187,7 +147,6 @@ code, .mono {
   font-variant-ligatures: none;
 }
 
-/* Scrollbars */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -208,9 +167,6 @@ code, .mono {
   }
 }
 
-/* =============================================================
-   Type utilities — editorial display serif + humanist sans
-   ============================================================= */
 
 .serif {
   font-family: var(--font-serif);
@@ -246,19 +202,9 @@ code, .mono {
 .muted { color: var(--muted); }
 .tabular { font-variant-numeric: tabular-nums; }
 
-/* =============================================================
-   App skeleton
-   ============================================================= */
 
 .app-root { min-height: 100vh; }
 
-/* When the chat / analytics / settings layout (.app-shell) is mounted,
-   lock body and .app-root to the visible viewport (dvh) so the composer
-   and footer stay flush with the bottom edge. Without this, on mobile
-   the body matches the LAYOUT viewport (taller than dvh while the URL
-   bar is visible) and the difference shows up as an empty strip below
-   "Built by Saim Shafique". The landing page (which doesn't render
-   .app-shell) keeps its natural scrolling. */
 body:has(.app-shell),
 .app-root:has(.app-shell) {
   height: 100dvh;
@@ -277,16 +223,11 @@ body:has(.app-shell),
   will-change: opacity;
 }
 
-/* main.js adds .hidden once the first route has fully mounted (and painted),
-   then removes the node after the fade — so the splash covers the whole boot. */
 .splash.hidden {
   opacity: 0;
   pointer-events: none;
 }
 
-/* The workspace eases in as the splash dissolves — a crossfade, so the two
-   overlap and there's never a bare frame between them. Opacity only (no
-   transform) so it can't establish a containing block for the fixed dropdowns. */
 .app-root.app-enter {
   animation: appBootIn 0.45s ease both;
 }
@@ -311,9 +252,6 @@ body:has(.app-shell),
   font-family: var(--font-sans);
 }
 
-/* Boot splash "running man" loader (replaces the logo while the app mounts).
-   #000 -> var(--ink) so it reads in both themes; classes/keyframes are boot-*
-   prefixed to avoid collisions. Both pieces position off the fixed .splash. */
 .boot-loader {
   position: absolute;
   top: 50%;
@@ -559,9 +497,6 @@ body:has(.app-shell),
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* =============================================================
-   Toast
-   ============================================================= */
 
 .toast-container {
   position: fixed;
@@ -576,7 +511,6 @@ body:has(.app-shell),
   pointer-events: none;
 }
 
-/* Claude-style pill toasts — theme tokens so light/dark stay distinct */
 .toast {
   pointer-events: auto;
   display: inline-flex;
@@ -643,7 +577,6 @@ body:has(.app-shell),
 }
 .toast .close:hover { opacity: 1; background: rgba(20, 20, 19, 0.08); }
 
-/* Dark — charcoal pill matching Claude's "Chat deleted" toast */
 :root[data-theme="dark"] .toast {
   background: #242424;
   color: #f5f5f4;
@@ -660,9 +593,6 @@ body:has(.app-shell),
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* =============================================================
-   Logo / spike-mark
-   ============================================================= */
 
 .logo {
   display: inline-flex;
@@ -716,9 +646,6 @@ body:has(.app-shell),
 
 .logo.sm .name { font-size: 17px; }
 
-/* =============================================================
-   Avatar
-   ============================================================= */
 
 .avatar {
   display: grid;
@@ -736,9 +663,6 @@ body:has(.app-shell),
 .avatar.md { width: 36px; height: 36px; font-size: 13px; }
 .avatar.lg { width: 56px; height: 56px; font-size: 18px; }
 
-/* =============================================================
-   Landing — editorial cream + coral + dark navy
-   ============================================================= */
 
 .landing { min-height: 100vh; background: var(--canvas); }
 
@@ -815,7 +739,6 @@ body:has(.app-shell),
   gap: 8px;
 }
 
-/* Hero */
 
 .hero {
   position: relative;
@@ -845,8 +768,7 @@ body:has(.app-shell),
     grid-template-columns: 1.1fr 0.9fr; 
     gap: 160px; 
     align-items: center;
-    min-height: calc(100vh - 160px); /* Fill screen minus header/footer approximate height */
-    padding: 0;
+    min-height: calc(100vh - 160px);     padding: 0;
   }
 }
 
@@ -915,18 +837,15 @@ body:has(.app-shell),
   background: var(--hairline-strong);
 }
 
-/* Hero artifact — dark navy code-window mockup */
 
 .hero-preview {
   position: relative;
-  border-radius: 20px; /* Softer, larger corners like Claude */
-  overflow: hidden;
+  border-radius: 20px;   overflow: hidden;
   background: var(--surface-card);
   color: var(--on-dark);
   border: 1px solid var(--hairline);
   box-shadow: var(--shadow-card);
-  aspect-ratio: 4/5; /* Tall vertical video frame (Claude style) */
-  width: 100%;
+  aspect-ratio: 4/5;   width: 100%;
 }
 
 .preview-titlebar {
@@ -1075,7 +994,6 @@ body:has(.app-shell),
   background: var(--primary);
 }
 
-/* Sections */
 
 .section {
   padding: 96px 24px;
@@ -1118,7 +1036,6 @@ body:has(.app-shell),
   font-family: var(--font-sans);
 }
 
-/* Feature grid */
 
 .feature-grid {
   margin-top: 48px;
@@ -1172,7 +1089,6 @@ body:has(.app-shell),
   font-family: var(--font-sans);
 }
 
-/* Architecture split */
 
 .split {
   display: grid;
@@ -1254,7 +1170,6 @@ body:has(.app-shell),
   margin-top: 4px;
 }
 
-/* Roadmap */
 
 .roadmap-grid {
   margin-top: 48px;
@@ -1341,7 +1256,6 @@ body:has(.app-shell),
   background: var(--on-primary);
 }
 
-/* Coral CTA band */
 
 .cta {
   padding: 64px;
@@ -1405,7 +1319,6 @@ body:has(.app-shell),
 }
 .cta .btn.secondary:hover { border-color: var(--on-primary); background: rgba(255, 255, 255, 0.08); }
 
-/* Landing footer — dark navy */
 
 .landing-footer {
   background: var(--surface-dark);
@@ -1440,17 +1353,11 @@ body:has(.app-shell),
 
 .landing-footer a:hover { color: var(--on-dark); }
 
-/* =============================================================
-   App shell — sidebar + main
-   ============================================================= */
 
 .app-shell {
   display: flex;
   height: 100vh;
-  /* dvh excludes mobile browser chrome (address bar, etc.) so the chat
-     composer + footer stay anchored to the visible bottom edge instead
-     of being pushed off-screen by the URL bar. */
-  height: 100dvh;
+    height: 100dvh;
   background: var(--canvas);
   overflow: hidden;
 }
@@ -1697,7 +1604,6 @@ body:has(.app-shell),
   color: var(--muted);
 }
 
-/* Conversation row context menu (Pin / Rename / Delete) */
 .sidebar-convo-menu {
   position: fixed;
   z-index: 300;
@@ -1840,7 +1746,6 @@ body:has(.app-shell),
 
 .sidebar-profile .signout svg { width: 16px; height: 16px; }
 
-/* Mobile drawer */
 
 .sidebar.mobile {
   position: fixed;
@@ -1848,10 +1753,7 @@ body:has(.app-shell),
   top: 0;
   bottom: 0;
   z-index: 50;
-  /* Override the base sidebar's height: 100% — on mobile we want exactly
-     the dynamic viewport height so the sign-out / profile foot doesn't
-     get pushed below the visible viewport by the URL bar. */
-  height: 100dvh;
+    height: 100dvh;
   transform: translateX(-100%);
   transition: transform 240ms ease;
   box-shadow: 4px 0 24px -8px rgba(20, 20, 19, 0.12);
@@ -1891,12 +1793,7 @@ body:has(.app-shell),
 .app-main {
   flex: 1;
   min-width: 0;
-  /* min-height: 0 is what allows the inner .chat-stream to scroll
-     instead of pushing its parent flex column outward. Without it the
-     whole layout grows to fit content, the composer gets shoved past
-     the bottom of .app-shell (overflow:hidden), and the user can
-     neither scroll nor reach the message bar. */
-  min-height: 0;
+    min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--canvas);
@@ -1966,9 +1863,6 @@ body:has(.app-shell),
   flex-shrink: 0;
 }
 
-/* =============================================================
-   Chat page
-   ============================================================= */
 
 .chat-page {
   flex: 1;
@@ -1979,7 +1873,6 @@ body:has(.app-shell),
   position: relative;
 }
 
-/* Chat top bar — minimal, editorial. Mobile-first. */
 .chat-topbar {
   position: sticky;
   top: 0;
@@ -1992,10 +1885,7 @@ body:has(.app-shell),
 }
 
 .chat-topbar .inner {
-  /* Full-width (not the centered 920px column) so the model badge sits in
-     the top-left corner of the chat pane instead of floating in from the
-     edge. The conversation stream below keeps its own centered 920px inner. */
-  max-width: none;
+    max-width: none;
   margin: 0;
   display: flex;
   align-items: center;
@@ -2155,9 +2045,7 @@ body:has(.app-shell),
 }
 
 .chat-stream .inner {
-  /* Same width as the composer (.composer) so the conversation and the input
-     bar share one clean column — replies never extend past the input's edges. */
-  max-width: 800px;
+    max-width: 800px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -2203,7 +2091,6 @@ body:has(.app-shell),
   font-family: var(--font-sans);
 }
 
-/* Incognito empty state — larger ghost; eyes glance right / left / up */
 .empty-stream.incognito .mark {
   width: 128px;
   height: 128px;
@@ -2231,8 +2118,7 @@ body:has(.app-shell),
 }
 
 @keyframes ghost-eyes-shift {
-  /* Center → right → left → up → center (no down) */
-  0%, 8%     { transform: translate(0, 0); }
+    0%, 8%     { transform: translate(0, 0); }
   18%, 28%   { transform: translate(2.1px, 0); }
   38%, 48%   { transform: translate(-2.1px, 0); }
   58%, 70%   { transform: translate(0, -2.4px); }
@@ -2285,7 +2171,6 @@ body:has(.app-shell),
   line-height: 1.5;
 }
 
-/* Messages */
 
 .message {
   display: flex;
@@ -2311,16 +2196,11 @@ body:has(.app-shell),
 .message .body {
   display: flex;
   flex-direction: column;
-  /* Assistant replies use (almost) the full column width so the long-form
-     answers read comfortably instead of being squeezed into ~78% with a big
-     empty gap on the left. This is independent of the composer width. */
-  max-width: 92%;
+    max-width: 92%;
 }
 
 .message.assistant .body { flex: 1 1 auto; min-width: 0; max-width: 100%; padding-left: 16px; padding-right: 16px; }
 
-/* User prompts stay narrower than assistant replies — they're short, and a
-   right-aligned bubble that spans the whole row looks odd. */
 .message.user .body { align-items: flex-end; max-width: 78%; }
 
 .message .meta {
@@ -2348,29 +2228,19 @@ body:has(.app-shell),
   word-break: break-word;
 }
 
-/* Assistant bubbles render markdown HTML — the HTML structure handles
-   whitespace, so pre-wrap (which preserves source newlines between
-   tags) was producing huge gaps between list items. */
 .message .bubble.markdown-body { white-space: normal; }
 
-/* No bubble for the assistant — its reply sits flush on the page like the
-   reference (Claude). Only the user's own message keeps a bubble. */
 .message.assistant .bubble {
   background: transparent;
   color: var(--ink);
   padding: 0;
 }
 
-/* Image-caption bubble ("Here's your image.") — hug the text instead of
-   stretching the full column width (the body is a stretch flex column). */
 .message.assistant .bubble.caption {
   width: fit-content;
   max-width: 100%;
 }
 
-/* =============================================================
-   Reasoning Block (DeepSeek / Thinking models)
-   ============================================================= */
 
 .reasoning-block {
   margin-bottom: 8px;
@@ -2389,8 +2259,7 @@ body:has(.app-shell),
   color: var(--muted);
   cursor: pointer;
   user-select: none;
-  list-style: none; /* hide default triangle in Firefox/Chrome */
-  transition: color 150ms ease;
+  list-style: none;   transition: color 150ms ease;
 }
 
 .reasoning-block summary::after {
@@ -2609,7 +2478,6 @@ body:has(.app-shell),
   font-size: 14px;
 }
 
-/* Long user prompts collapse to ~6 lines with a fade, behind a Show more toggle. */
 .message.user .bubble.clamped {
   max-height: 8.4em;
   overflow: hidden;
@@ -2674,9 +2542,7 @@ body:has(.app-shell),
   30%           { opacity: 1; transform: translateY(-3px); }
 }
 
-/* Feedback */
 
-/* ---- Feedback & bug-report form (Feedback page) ---- */
 .feedback-form { margin-top: 20px; }
 .feedback-form .settings-field { margin-top: 16px; }
 .feedback-form .settings-field:first-child { margin-top: 0; }
@@ -2738,13 +2604,10 @@ body:has(.app-shell),
   background: var(--primary);
 }
 
-/* Composer */
 
 .composer-wrap {
   padding: 12px 24px 12px;
-  /* Transparent so the composer reads as a single clean message bar that
-     blends into the page, with no visible band/seam on the left and right. */
-  background: transparent;
+    background: transparent;
   flex-shrink: 0;
 }
 
@@ -2765,15 +2628,11 @@ body:has(.app-shell),
   }
 }
 
-/* Shares its width with the message column (.chat-stream .inner) so the input
-   bar and the conversation above it line up on the same left/right edges. */
 .composer { max-width: 800px; margin: 0 auto; }
 
 .composer-box {
   display: flex;
-  /* Vertical stack: textarea on top, fixed action toolbar underneath. This is
-     what pins the +/send positions while the textarea grows. */
-  flex-direction: column;
+    flex-direction: column;
   gap: 4px;
   padding: 8px 10px 8px;
   border-radius: var(--r-lg);
@@ -2782,8 +2641,6 @@ body:has(.app-shell),
   transition: border-color 180ms ease;
 }
 
-/* Bottom action row — left: attach; right: search / voice / send. Stays put
-   as the textarea above it grows, so the controls never shift. */
 .composer-toolbar {
   display: flex;
   align-items: center;
@@ -2813,16 +2670,12 @@ body:has(.app-shell),
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 15px;
-  /* Auto-growing input: starts at one line and grows with content (height is
-     set in JS from scrollHeight) up to max-height, then scrolls. The scrollbar
-     only appears once the prompt passes that limit. */
-  height: 38px;
+    height: 38px;
   min-height: 38px;
   max-height: 168px;
   line-height: 1.5;
   overflow-y: auto;
-  /* Thin, unobtrusive scrollbar that matches the warm palette. */
-  scrollbar-width: thin;
+    scrollbar-width: thin;
   scrollbar-color: var(--hairline-strong) transparent;
 }
 
@@ -2863,9 +2716,6 @@ body:has(.app-shell),
 
 .composer .send svg { width: 16px; height: 16px; }
 
-/* Web-search pill — sits beside the send button. Off = subtle outline;
-   on = blue, signalling that the next turn will be augmented with live
-   search results. */
 .composer-search-toggle {
   display: inline-flex;
   align-items: center;
@@ -2897,9 +2747,6 @@ body:has(.app-shell),
   border-color: #000;
 }
 
-/* =============================================================
-   Composer toolbar groups + Tools dropdown (search / image)
-   ============================================================= */
 .composer-toolbar-left {
   display: flex;
   align-items: center;
@@ -2907,7 +2754,6 @@ body:has(.app-shell),
   min-width: 0;
 }
 
-/* Tools trigger — icon-only button matching the attach (+) button. */
 .composer-tools-btn {
   appearance: none;
   background: transparent;
@@ -2934,9 +2780,6 @@ body:has(.app-shell),
   align-self: center;
 }
 
-/* Surface + item styling is shared with the model / attachment / effort
-   menus (see "Composer dropdown menus" below). This block only positions the
-   tools menu — it opens UPWARD from the bottom toolbar. */
 .tools-menu {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -2945,19 +2788,12 @@ body:has(.app-shell),
   width: 215px;
 }
 
-/* Spinner shown in the send slot while an image is generating. */
 .composer .send .send-spin { display: inline-grid; place-items: center; }
 .composer .send .send-spin svg { animation: spin 1s linear infinite; }
 
-/* =============================================================
-   Iris image generation — in-flight placeholder + generated result
-   ============================================================= */
 .image-gen-placeholder {
   margin-top: 6px;
-  /* Absolute width (not a %) — the message body is a shrink-wrapped flex column,
-     so a percentage width would collapse the box. Matches the generated image
-     size so the layout doesn't jump when the result arrives. */
-  width: 220px;
+    width: 220px;
   max-width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: var(--r-md);
@@ -2986,7 +2822,6 @@ body:has(.app-shell),
 }
 .image-gen-caption svg { color: var(--primary); }
 
-/* ── Help Study: quiz cards ───────────────────────────────────── */
 .quiz-loading {
   display: inline-flex;
   align-items: center;
@@ -3109,7 +2944,6 @@ body:has(.app-shell),
 }
 .quiz-skip-btn:hover { opacity: 1; }
 
-/* Score card */
 .quiz-score {
   text-align: center;
   padding: 32px 24px;
@@ -3159,10 +2993,7 @@ body:has(.app-shell),
   display: flex;
   flex-direction: column;
   gap: 6px;
-  /* Match the loading skeleton's footprint exactly so there's no size jump when
-     the result replaces it. Absolute width (not a %) because the message body is
-     a shrink-wrapped flex column, which collapses a percentage width. */
-  width: 220px;
+    width: 220px;
   max-width: 100%;
 }
 .generated-image img {
@@ -3189,7 +3020,6 @@ body:has(.app-shell),
   .image-gen-placeholder { animation: none; }
 }
 
-/* "Searching the web" bubble shown while Tavily is in-flight */
 .search-bubble {
   display: inline-flex;
   align-items: center;
@@ -3218,7 +3048,6 @@ body:has(.app-shell),
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 1s ease up, 1s ease down — subtle dull/bright like a heartbeat */
 @keyframes icon-heartbeat {
   0%, 100% {
     opacity: 0.55;
@@ -3256,9 +3085,6 @@ body:has(.app-shell),
 
 .composer .hints svg { width: 12px; height: 12px; color: var(--primary); }
 
-/* =============================================================
-   Analytics / Settings page-shell shared
-   ============================================================= */
 
 .page-shell {
   padding: 40px 24px 56px;
@@ -3300,7 +3126,6 @@ body:has(.app-shell),
   transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
 }
 
-/* Settings buttons row (Sign out + Delete account) */
 .settings-actions {
   margin-top: 16px;
   display: flex;
@@ -3338,7 +3163,6 @@ body:has(.app-shell),
   max-width: 640px;
 }
 
-/* Stat cards */
 
 .stat-grid {
   display: grid;
@@ -3424,7 +3248,6 @@ body:has(.app-shell),
 
 .stat .icon-box svg { width: 18px; height: 18px; }
 
-/* Breakdown */
 
 .breakdown-grid {
   margin-top: 20px;
@@ -3495,8 +3318,6 @@ body:has(.app-shell),
   font-variant-numeric: tabular-nums;
 }
 
-/* Plan-usage list in Settings — a bare <ul> (no .breakdown wrapper), so it
-   needs its own reset + generous row spacing. */
 .usage-list {
   margin: 0;
   padding: 0;
@@ -3517,7 +3338,6 @@ body:has(.app-shell),
   font-variant-numeric: tabular-nums;
 }
 
-/* Minimal inline loader for async sections (e.g. Plan usage while it fetches) */
 .section-loading {
   display: flex;
   align-items: center;
@@ -3532,9 +3352,7 @@ body:has(.app-shell),
 .bar-track {
   height: 6px;
   border-radius: 999px;
-  /* A visible groove: surface-card matched the settings card it sits on and
-     vanished. hairline-strong reads as an empty track in both themes. */
-  background: var(--hairline-strong);
+    background: var(--hairline-strong);
   overflow: hidden;
 }
 
@@ -3548,7 +3366,6 @@ body:has(.app-shell),
 .bar-fill.emerald { background: var(--success); }
 .bar-fill.amber   { background: var(--accent-amber); }
 .bar-fill.rose    { background: var(--error); }
-/* Usage bars: professional blue (session lighter, weekly deeper). */
 .bar-fill.indigo  { background: #3b82f6; }
 .bar-fill.cyan    { background: #2563eb; }
 .bar-fill.violet  { background: var(--ink); }
@@ -3593,7 +3410,6 @@ body:has(.app-shell),
 
 .empty-block .actions { margin-top: 24px; }
 
-/* Analytics chart card — dark navy product surface */
 
 .analytics-chart-card {
   margin-top: 20px;
@@ -3640,9 +3456,6 @@ body:has(.app-shell),
 }
 .analytics-chart-card .btn.secondary:hover { background: #2e2b27; }
 
-/* =============================================================
-   Settings page
-   ============================================================= */
 
 .settings-card {
   padding: 28px;
@@ -3663,7 +3476,6 @@ body:has(.app-shell),
   align-items: center;
   gap: 8px;
 }
-/* Sign out matches Delete account: a bordered button, not a bare text link. */
 .settings-actions .btn.ghost { border-color: var(--hairline-strong); }
 
 .section-title .icon-box {
@@ -3729,7 +3541,6 @@ body:has(.app-shell),
   color: var(--body-strong);
 }
 
-/* Editable field (e.g. display name) */
 .settings-field {
   margin-top: 20px;
   display: flex;
@@ -3764,7 +3575,6 @@ body:has(.app-shell),
   color: var(--muted);
 }
 
-/* Label + control row (e.g. Appearance) */
 .settings-row {
   margin-top: 20px;
   display: flex;
@@ -3787,7 +3597,6 @@ body:has(.app-shell),
   color: var(--muted);
 }
 
-/* Segmented System / Light / Dark control */
 .seg-control {
   display: inline-flex;
   gap: 2px;
@@ -3947,7 +3756,6 @@ body:has(.app-shell),
   border: 1px solid var(--hairline);
 }
 
-/* Inputs */
 
 .input {
   width: 100%;
@@ -3983,9 +3791,6 @@ body:has(.app-shell),
 
 .input-group { margin-bottom: 14px; }
 
-/* =============================================================
-   404
-   ============================================================= */
 
 .notfound {
   min-height: 100vh;
@@ -4030,9 +3835,6 @@ body:has(.app-shell),
   justify-content: center;
 }
 
-/* =============================================================
-   Misc
-   ============================================================= */
 
 .line-clamp-1 {
   display: -webkit-box;
@@ -4063,7 +3865,6 @@ body:has(.app-shell),
   50% { opacity: 0.4; }
 }
 
-/* Backdrop / modal helper for landing login */
 
 .modal {
   position: fixed;
@@ -4088,9 +3889,6 @@ body:has(.app-shell),
   -webkit-backdrop-filter: blur(4px);
 }
 
-/* =============================================================
-   Onboarding / "What's new in Bimo 5" modal — blocking overlay
-   ============================================================= */
 .ob-overlay {
   position: fixed;
   inset: 0;
@@ -4150,12 +3948,9 @@ body:has(.app-shell),
   line-height: 1.6;
   color: var(--muted);
   margin: 0;
-  /* Left-aligned with natural (tight) word spacing — every line starts flush
-     left. Justify was stretching the gaps and reading unprofessionally. */
-  text-align: left;
+    text-align: left;
 }
 
-/* progress dots */
 .ob-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 18px; }
 .ob-dot {
   width: 7px; height: 7px; border-radius: 50%;
@@ -4165,7 +3960,6 @@ body:has(.app-shell),
 .ob-dot.done { background: var(--primary-soft); }
 .ob-dot.active { width: 20px; border-radius: 4px; background: var(--primary); }
 
-/* fields */
 .ob-field { text-align: left; margin-top: 18px; }
 .ob-field .field-label { display: block; margin-bottom: 8px; }
 .ob-field .settings-input { width: 100%; }
@@ -4195,20 +3989,15 @@ body:has(.app-shell),
   color: var(--on-primary);
 }
 
-/* birthday wheel — alarm-style scroll picker (3 snap columns + center band) */
 .ob-wheel {
   position: relative;
   display: flex;
   justify-content: center;
   gap: 2px;
-  height: 200px; /* 5 rows × 40px */
-  margin: 10px 0 6px;
+  height: 200px;   margin: 10px 0 6px;
   -webkit-mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent);
           mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent);
 }
-/* The selection highlight is per-column now (a separate pill behind each of
-   month / day / year via .ob-wheel-item.sel) rather than one bar across the
-   whole row. */
 .ob-wheel-band { display: none; }
 .ob-wheel-col {
   position: relative;
@@ -4224,8 +4013,7 @@ body:has(.app-shell),
 .ob-col-day   { width: 54px; }
 .ob-col-year  { width: 84px; }
 .ob-wheel-col::-webkit-scrollbar { display: none; }
-.ob-wheel-pad { height: 80px; }   /* lets the first/last item reach the center */
-.ob-wheel-item {
+.ob-wheel-pad { height: 80px; }   .ob-wheel-item {
   height: 40px;
   line-height: 40px;
   text-align: center;
@@ -4236,7 +4024,6 @@ body:has(.app-shell),
   white-space: nowrap;
   transition: color 0.15s, font-size 0.15s, font-weight 0.15s;
 }
-/* left/center/right alignment per column, matching a native date wheel */
 .ob-col-month .ob-wheel-item { text-align: left;  padding-left: 16px; }
 .ob-col-year  .ob-wheel-item { text-align: right; padding-right: 16px; }
 .ob-wheel-item.sel {
@@ -4247,16 +4034,11 @@ body:has(.app-shell),
   border-radius: 10px;
 }
 
-/* manual typed date entry, above the wheel */
 .ob-birthday-field { margin: 16px 0 2px; }
-/* No text-align:center — centering a native date input pushes its calendar /
-   dropdown indicator past the rounded right edge on mobile (the icon "moved
-   out"). Left-aligned keeps the native picker indicator inside the field. */
 .ob-birthday-input { width: 100%; max-width: 100%; }
 .ob-birthday-input::-webkit-calendar-picker-indicator { margin-inline-start: 4px; }
 :root[data-theme="dark"] .ob-birthday-input { color-scheme: dark; }
 
-/* theme tiles */
 .ob-themes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
 .ob-theme-tile {
   display: flex;
@@ -4283,7 +4065,6 @@ body:has(.app-shell),
 }
 .ob-theme-tile.active .ic { color: var(--primary); }
 
-/* what's-new features */
 .ob-features { display: grid; gap: 14px; margin: 20px 0 18px; text-align: left; }
 .ob-feature { display: flex; gap: 13px; align-items: flex-start; }
 .ob-feature-ic {
@@ -4316,8 +4097,6 @@ body:has(.app-shell),
 
 .ob-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
 .ob-actions .btn { flex: 1; justify-content: center; }
-/* Secondary action (Not now / Back) reads as a real button: solid surface
-   (white in light) + border, instead of a bare text link. */
 .ob-actions .btn.ghost { background: var(--input-bar); border-color: var(--hairline-strong); }
 .ob-actions .btn.ghost:hover { background: var(--surface-soft); }
 .btn.wide { width: 100%; justify-content: center; }
@@ -4328,20 +4107,15 @@ body:has(.app-shell),
   .ob-themes { gap: 10px; }
 }
 
-/* =============================================================
-   Mobile responsiveness — tightened scales below 768/640/480
-   ============================================================= */
 
 @media (max-width: 1023px) {
-  /* Landing nav on tablet — make the bar shrink-friendly */
-  .landing-nav-inner { padding: 0 16px; }
+    .landing-nav-inner { padding: 0 16px; }
   .landing-nav-bar { height: 60px; gap: 10px; }
   .landing-nav-bar .logo .sub { display: none; }
 }
 
 @media (max-width: 767px) {
-  /* Sections / heroes — pull oversized whitespace back */
-  .landing-nav-bar .logo .mark { width: 18px; height: 18px; }
+    .landing-nav-bar .logo .mark { width: 18px; height: 18px; }
   .landing-nav-bar .logo .name { font-size: 16px; }
   
   .nav-action-btn { width: 80px; padding: 0 6px; font-size: 11.5px; }
@@ -4372,26 +4146,21 @@ body:has(.app-shell),
   .cta .actions { max-width: 100%; }
   .cta .actions .btn { width: 100%; }
 
-  /* Hero CTA buttons side-by-side on mobile */
-  .hero-actions { flex-direction: row; align-items: center; gap: 6px; flex-wrap: nowrap; }
+    .hero-actions { flex-direction: row; align-items: center; gap: 6px; flex-wrap: nowrap; }
   .hero-actions .btn { width: auto; flex: 1; height: 40px; padding: 0 6px; font-size: 11.5px; gap: 4px; white-space: nowrap; }
   .hero-actions .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-  /* Landing footer compactness */
-  .landing-footer { padding: 40px 20px; }
+    .landing-footer { padding: 40px 20px; }
 
-  /* Modal — give it breathing room on tiny screens */
-  .modal { padding: 24px; border-radius: var(--r-lg); }
+    .modal { padding: 24px; border-radius: var(--r-lg); }
 }
 
 @media (max-width: 559px) {
-  /* Landing nav — drop the secondary action label on phones */
-  .landing-nav-bar { gap: 8px; }
+    .landing-nav-bar { gap: 8px; }
   .landing-nav-actions { gap: 6px; }
   .landing-nav-actions .btn.ghost.sm { padding: 0 10px; }
 
-  /* Chat composer + stream comfort */
-  .chat-stream { padding: 20px 12px calc(20px + env(safe-area-inset-bottom)); }
+    .chat-stream { padding: 20px 12px calc(20px + env(safe-area-inset-bottom)); }
   .composer-wrap { padding: 8px 10px; }
   .composer-box { gap: 2px; padding: 6px 8px; }
   .composer .hints { font-size: 11px; }
@@ -4404,36 +4173,27 @@ body:has(.app-shell),
   .composer-attach svg { width: 17px; height: 17px; }
   .composer-voice svg { width: 20px; height: 20px; }
 
-  /* Recording bar — narrower padding + slightly smaller controls on phones */
-  .composer-recording { gap: 8px; padding: 8px 10px; }
+    .composer-recording { gap: 8px; padding: 8px 10px; }
   .composer-recording .rec-cancel,
   .composer-recording .rec-confirm,
   .composer-recording .rec-spinner { width: 40px; height: 40px; }
   .composer-recording .rec-body { gap: 8px; height: 40px; }
   .composer-recording .rec-timer { font-size: 13px; min-width: 40px; }
   .composer textarea {
-    font-size: 16px; /* prevent iOS zoom on focus */
-    padding: 6px 2px 2px;
-    /* Auto-grow from one line; a touch shorter cap on phones. */
-    height: 40px;
+    font-size: 16px;     padding: 6px 2px 2px;
+        height: 40px;
     min-height: 40px;
     max-height: 160px;
   }
-  /* No separate placeholder font-size override — keeping it at 16px avoids
-     vertical misalignment. */
-
-  /* Messages — tighter on mobile */
-  .message { gap: 10px; }
+  
+    .message { gap: 10px; }
   .message.user .body { max-width: 85%; }
   .message .bubble { padding: 12px 14px; font-size: 14.5px; }
   .message-attachments img { max-width: 160px; max-height: 160px; }
-  /* Search toggle: show text but keep it compact */
-  .composer-search-toggle { height: 38px; padding: 0 10px; gap: 5px; font-size: 12px; }
+    .composer-search-toggle { height: 38px; padding: 0 10px; gap: 5px; font-size: 12px; }
   .composer-search-toggle svg { width: 16px; height: 16px; }
 
-  /* Composer toolbar on phones — keep the relocated model picker + tools
-     button compact so attach / tools / model / mic / send fit one row. */
-  .composer-toolbar { gap: 2px; }
+    .composer-toolbar { gap: 2px; }
   .composer-tools-btn { width: 38px; height: 38px; }
   .composer-tools-btn svg { width: 18px; height: 18px; }
   .model-badge.model-badge-button { padding: 5px 9px 5px 11px; font-size: 12px; }
@@ -4445,13 +4205,11 @@ body:has(.app-shell),
   }
 
 
-  /* Chat topbar fits phones */
-  .chat-topbar { padding: 4px 12px; }
+    .chat-topbar { padding: 4px 12px; }
   .chat-topbar .title { font-size: 16px; }
   .chat-topbar .model-badge { height: auto; padding: 5px 12px; font-size: 12px; }
 
-  /* Empty-stream tweaks */
-  .empty-stream { padding: 24px 0 8px; }
+    .empty-stream { padding: 24px 0 8px; }
   .empty-stream .mark { width: 68px; height: 68px; margin-bottom: 16px; }
   .empty-stream .mark svg { width: 68px; height: 68px; }
   .empty-stream.incognito .mark {
@@ -4469,8 +4227,7 @@ body:has(.app-shell),
   .starter-grid { margin-top: 24px; }
   .starter { padding: 14px 16px; }
 
-  /* Thought Process row — tighter on small screens */
-  .reasoning-block summary {
+    .reasoning-block summary {
     font-size: 12px;
     gap: 5px;
   }
@@ -4485,8 +4242,7 @@ body:has(.app-shell),
     border-width: 1.25px;
   }
 
-  /* Page shell (analytics / settings) */
-  .page-shell { padding: 20px 16px 40px; }
+    .page-shell { padding: 20px 16px 40px; }
   .page-head { margin-bottom: 24px; }
   .page-head h1 { font-size: clamp(28px, 7vw, 36px); }
   .page-head p { font-size: 15px; }
@@ -4503,8 +4259,7 @@ body:has(.app-shell),
   .analytics-chart-card { padding: 20px; }
   .analytics-chart-card h3 { font-size: 19px; }
 
-  /* Toast — clean right-aligned pill on mobile */
-  .toast-container {
+    .toast-container {
     top: 10px;
     right: 12px;
     left: auto;
@@ -4512,25 +4267,19 @@ body:has(.app-shell),
     align-items: flex-end;
   }
 
-  /* Sidebar drawer width */
-  .sidebar { width: min(86vw, 320px); }
+    .sidebar { width: min(86vw, 320px); }
 
-  /* Delete button is hover-revealed on desktop — make it visible on touch */
-  .sidebar-convo-lists .item .item-menu,
+    .sidebar-convo-lists .item .item-menu,
   .sidebar-recent .item .item-menu { opacity: 0.85; }
 
-  /* Profile row on settings stacks on small phones */
-  .profile-row { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .profile-row { flex-direction: column; align-items: flex-start; gap: 14px; }
 
-  /* Feedback row collapses to a single column on phones */
-  .feedback .row { grid-template-columns: 1fr; }
+    .feedback .row { grid-template-columns: 1fr; }
 
-  /* Modal padding is tight on phones */
-  .modal { padding: 20px; max-width: calc(100vw - 24px); }
+    .modal { padding: 20px; max-width: calc(100vw - 24px); }
   .model-list { max-height: 60vh; }
 }
 
-/* Reveal delete button on any touch-primary device, not just narrow viewports */
 @media (hover: none) {
   .sidebar-convo-lists .item .item-menu,
   .sidebar-recent .item .item-menu { opacity: 0.85; }
@@ -4544,17 +4293,12 @@ body:has(.app-shell),
   .feature-icon { width: 36px; height: 36px; margin-bottom: 18px; }
 }
 
-/* Mobile bar (chat shell) — menu + incognito */
 .mobile-bar { gap: 8px; padding: 0 12px; }
 
-/* Let chat-topbar be visible on mobile */
 @media (max-width: 1023px) {
   .chat-topbar { display: flex; }
 }
 
-/* =============================================================
-   Motion — Framer-style entrance + scroll reveal
-   ============================================================= */
 
 html {
   scroll-behavior: smooth;
@@ -4587,7 +4331,6 @@ html {
   animation-delay: 550ms;
 }
 
-/* Scroll-reveal (driven by IntersectionObserver in landing.js) */
 .reveal {
   opacity: 0;
   transform: translate3d(0, 30px, 0);
@@ -4632,7 +4375,6 @@ html {
 .reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 600ms; }
 .reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 750ms; }
 
-/* Interactive Hover States */
 .feature-card, .architecture-card, .roadmap-card {
   transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 400ms cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
@@ -4671,9 +4413,6 @@ html {
   }
 }
 
-/* =============================================================
-   Bimo · markdown rendering + code blocks
-   ============================================================= */
 
 .markdown-body {
   line-height: 1.5;
@@ -4684,9 +4423,6 @@ html {
 .markdown-body > :last-child { margin-bottom: 0; }
 .markdown-body p { margin: 0 0 8px; }
 .markdown-body strong { color: var(--ink); font-weight: 600; }
-/* Bimo UI never uses italic for emphasis. This element-level reset is beaten by
-   the class rules below (markdown content + hljs), so only chrome <em> goes
-   upright; user-authored markdown italics and code comments keep theirs. */
 em { font-style: normal; }
 .markdown-body em { color: var(--body-strong); font-style: italic; }
 .markdown-body ul,
@@ -4728,9 +4464,6 @@ em { font-style: normal; }
   background: var(--hairline);
   margin: 16px 0;
 }
-/* Horizontally-scrollable table wrapper (injected by renderMarkdown).
-   Lets wide tables overflow inside their own container instead of
-   busting out of the chat bubble on mobile — same UX as ChatGPT. */
 .markdown-body .md-table-wrap {
   margin: 8px 0;
   max-width: 100%;
@@ -4776,7 +4509,6 @@ em { font-style: normal; }
   font-family: var(--font-mono);
   font-size: 0.92em;
 }
-/* Code block card: header bar (language + copy) fused to the code surface */
 .markdown-body .code-block {
   margin: 12px 0;
   border-radius: var(--r-md);
@@ -4832,7 +4564,6 @@ em { font-style: normal; }
   line-height: 1.6;
 }
 
-/* Standalone <pre> not wrapped in a code-block (e.g. math fallback) */
 .markdown-body pre {
   background: var(--surface-dark);
   color: var(--on-dark);
@@ -4851,11 +4582,6 @@ em { font-style: normal; }
   border-radius: 0;
 }
 
-/* KaTeX math — never put overflow on .katex itself; it clips the overlay glyphs
-   (\neq slash, \frac, \sqrt) into stray pieces (the "/" bug). Only the DISPLAY
-   wrapper scrolls, and horizontally only — mixing overflow-x:auto with
-   overflow-y:visible makes the browser compute overflow-y to auto, which spawned
-   a vertical scrollbar on every equation. Inline math never scrolls. */
 .markdown-body .math-display-wrap {
   overflow-x: auto;
   overflow-y: hidden;
@@ -4877,13 +4603,10 @@ em { font-style: normal; }
   max-width: 100%;
   overflow: visible;
 }
-/* Beat the bubble's Inter stack — composite math glyphs need KaTeX's own fonts
-   or the \neq overlay misaligns (katex#2109). */
 .message .bubble.markdown-body .katex {
   font-family: KaTeX_Main, "Times New Roman", serif;
 }
 
-/* highlight.js — warm-leaning palette on the dark code surface */
 .hljs { color: var(--on-dark); background: transparent; }
 .hljs-keyword, .hljs-built_in, .hljs-type, .hljs-selector-tag {
   color: #f0b48b;
@@ -4899,7 +4622,6 @@ em { font-style: normal; }
 .hljs-emphasis { font-style: italic; }
 .hljs-strong { font-weight: 700; }
 
-/* Streaming meta: rotating phrase + elapsed-seconds timer */
 .message.streaming .meta .status-text {
   color: var(--muted);
   transition: opacity 200ms ease;
@@ -4913,7 +4635,6 @@ em { font-style: normal; }
 }
 .message.streaming .meta .status-timer:empty { padding-left: 0; }
 
-/* Streaming bubble caret */
 .streaming-bubble .cursor {
   display: inline-block;
   width: 0.6ch;
@@ -4924,15 +4645,8 @@ em { font-style: normal; }
 }
 @keyframes bimo-blink { to { opacity: 0; } }
 
-/* No reveal mask: the bottom-fade gradient made a dark code block dissolve into
-   the page during streaming, which read as a "white glow". Tokens just appear. */
-/* The wrapper re-nests the markdown one level deeper, so reapply the
-   first/last-child margin resets that `.markdown-body > :first-child` would
-   otherwise miss — keeps the streaming text flush with the settled bubble. */
 .streaming-bubble .stream-text > :first-child { margin-top: 0; }
 .streaming-bubble .stream-text > :last-child { margin-bottom: 0; }
-/* Once the model signals completion, drop the reveal mask so the finished text
-   is fully solid during the brief save before it settles into a real message. */
 .streaming-bubble.stream-done .stream-text {
   -webkit-mask-image: none;
   mask-image: none;
@@ -4941,9 +4655,6 @@ em { font-style: normal; }
   .streaming-bubble .stream-text { -webkit-mask-image: none; mask-image: none; }
 }
 
-/* Message entrance — a soft fade + rise when a turn is added (the user's bubble
-   on send, the assistant's on settle). One-shot via the `.entering` class so
-   re-renders never replay it on existing messages. */
 @keyframes bimoMsgIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -4955,10 +4666,6 @@ em { font-style: normal; }
   .message.entering { animation: none; }
 }
 
-/* Thread entrance — the whole stream eases in when a conversation opens or you
-   switch between them (loadMessages re-applies .stream-enter), and the empty
-   starter view does the same on a new chat. Replaces the hard pop after the
-   skeletons. Streaming never re-triggers this (it doesn't reload messages). */
 @keyframes bimoStreamIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: none; }
@@ -4972,16 +4679,11 @@ em { font-style: normal; }
   .empty-stream { animation: none; }
 }
 
-/* Frozen "thought for Ns" on a finished message (distinct from the live
-   .reasoning-timer the chat page drives during streaming). */
 .reasoning-duration {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
-/* =============================================================
-   Bimo · model badge + persona button + composer attachments
-   ============================================================= */
 
 .model-badge.model-badge-button {
   appearance: none;
@@ -5074,7 +4776,6 @@ em { font-style: normal; }
   background: var(--surface-card);
 }
 
-/* Loading chip — spinner animation */
 .composer-attachment-chip.loading .spinner {
   display: inline-flex;
   align-items: center;
@@ -5119,9 +4820,6 @@ em { font-style: normal; }
   align-self: center;
 }
 
-/* Surface + item styling is shared (see "Composer dropdown menus"). This
-   block only positions the attachment menu — it opens UPWARD from the
-   bottom toolbar. */
 .attachment-menu {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -5155,9 +4853,6 @@ em { font-style: normal; }
   text-overflow: ellipsis;
 }
 
-/* =============================================================
-   Bimo · model picker modal
-   ============================================================= */
 
 .modal.modal-wide {
   max-width: 560px;
@@ -5220,9 +4915,6 @@ em { font-style: normal; }
   color: var(--accent-teal);
 }
 
-/* =============================================================
-   Model badge wrap + Gemini-style inline dropdown
-   ============================================================= */
 
 .model-badge-wrap {
   position: relative;
@@ -5230,22 +4922,12 @@ em { font-style: normal; }
   align-items: center;
 }
 
-/* Surface + item styling is shared (see "Composer dropdown menus" below).
-   This block only positions the model menu — top/left/width are set by JS
-   (openModelDropdown). */
 .model-dropdown {
   position: fixed;
   min-width: 215px;
   width: 215px;
 }
 
-/* =============================================================
-   Composer dropdown menus — ONE shared anatomy for the model,
-   tools, attachment, and effort menus. Same surface (canvas card,
-   12px radius, soft shadow) and the same item skeleton:
-     [lead icon] · [title + sub] · [check when selected]
-   Each menu's own block above only handles positioning.
-   ============================================================= */
 .model-dropdown,
 .tools-menu,
 .attachment-menu,
@@ -5281,10 +4963,7 @@ em { font-style: normal; }
   border: 0;
   width: 100%;
   display: flex;
-  /* Align the leading icon + check to the TITLE line (the items are two
-     lines tall — title + description), not the centre of the whole block,
-     so the icons sit level with the bold title instead of floating low. */
-  align-items: flex-start;
+    align-items: flex-start;
   gap: 9px;
   padding: 8px 9px;
   border-radius: var(--r-md);
@@ -5303,9 +4982,6 @@ em { font-style: normal; }
 .attachment-menu-item.active,
 .effort-dropdown-item.active { background: var(--primary-soft); }
 
-/* Shared item skeleton: leading icon · text (title + sub) · trailing check.
-   The lead + check boxes are sized to the title's line height so their
-   centred glyph lands level with the bold title (item is top-aligned). */
 .menu-lead {
   display: grid;
   place-items: center;
@@ -5358,9 +5034,6 @@ em { font-style: normal; }
   line-height: 1.7;
 }
 
-/* =============================================================
-   Reasoning effort badge + dropdown (Nexos 2.0 only)
-   ============================================================= */
 
 .effort-badge-wrap {
   position: relative;
@@ -5396,17 +5069,11 @@ em { font-style: normal; }
   flex-shrink: 0;
 }
 
-/* Surface + item styling is shared (see "Composer dropdown menus"). This
-   block only positions the effort menu — top/left/width are set by JS
-   (openEffortDropdown). */
 .effort-dropdown {
   position: fixed;
   min-width: 179px;
 }
 
-/* =============================================================
-   Composer voice button — icon only, no background
-   ============================================================= */
 
 .composer-voice {
   appearance: none;
@@ -5428,10 +5095,6 @@ em { font-style: normal; }
 
 .composer-voice svg { width: 18px; height: 18px; }
 
-/* =============================================================
-   Recording bar — dark waveform UI shown in place of the composer
-   box while the user is recording a voice note.
-   ============================================================= */
 
 .composer-recording {
   display: none;
@@ -5446,7 +5109,6 @@ em { font-style: normal; }
 
 .composer-recording.active { display: flex; }
 
-/* Cancel (✕) — soft circular button on the left */
 .composer-recording .rec-cancel {
   flex-shrink: 0;
   width: 44px;
@@ -5462,7 +5124,6 @@ em { font-style: normal; }
 .composer-recording .rec-cancel:hover { background: var(--surface-cream-strong); color: var(--ink); }
 .composer-recording .rec-cancel:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Confirm (✓) — coral circular button on the right */
 .composer-recording .rec-confirm {
   flex-shrink: 0;
   width: 44px;
@@ -5477,7 +5138,6 @@ em { font-style: normal; }
 }
 .composer-recording .rec-confirm:hover { background: var(--primary-active); }
 
-/* Body between the two buttons: waveform + timer */
 .composer-recording .rec-body {
   flex: 1;
   min-width: 0;
@@ -5498,9 +5158,6 @@ em { font-style: normal; }
   text-align: right;
 }
 
-/* Live waveform — a row of thin bars whose heights are set in JS from the
-   real microphone level (startWaveMeter). They rest near-flat and rise only
-   when the user actually speaks. */
 .composer-recording .rec-wave {
   flex: 1;
   min-width: 0;
@@ -5515,16 +5172,11 @@ em { font-style: normal; }
   flex: 1;
   min-width: 2px;
   max-width: 4px;
-  height: 12%; /* resting height; JS raises this with the voice level */
-  border-radius: 999px;
+  height: 12%;   border-radius: 999px;
   background: var(--muted-soft);
-  /* Smooth the per-frame height changes so the motion reads as a fluid
-     waveform rather than a flicker. */
-  transition: height 80ms linear;
+    transition: height 80ms linear;
 }
 
-/* While transcribing: settle the waveform flat (JS has stopped updating it)
-   and dim it while the spinner shows in place of ✓ */
 .composer-recording.transcribing .rec-wave span {
   height: 14%;
   opacity: 0.35;
@@ -5544,9 +5196,7 @@ em { font-style: normal; }
 .composer-recording .rec-spinner svg { animation: spin 0.7s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  /* The bars are JS-driven (not a looping animation), but skip the smoothing
-     transition so there's no residual motion for users who opt out. */
-  .composer-recording .rec-wave span { transition: none; }
+    .composer-recording .rec-wave span { transition: none; }
 }
 
 
@@ -5558,9 +5208,6 @@ em { font-style: normal; }
   color: var(--primary-active);
 }
 
-/* =============================================================
-   Image preview modal (click an attachment to view full size)
-   ============================================================= */
 
 .image-modal-overlay {
   position: fixed;
@@ -5622,12 +5269,7 @@ em { font-style: normal; }
   .image-modal-figure { transform: none; }
 }
 
-/* =============================================================
-   Bimo Voice — full-screen voice assistant overlay + composer button
-   ============================================================= */
 
-/* Composer button that occupies the send slot when the box is empty. Matches
-   the dictation mic / attach button sizing. */
 .voice-assistant-btn {
   appearance: none;
   background: transparent;
@@ -5687,11 +5329,6 @@ em { font-style: normal; }
   min-height: 24px;
 }
 
-/* The iridescent orb — a muted, looping video of the bubble. Its near-white
-   video background is melted into the cream canvas with mix-blend-mode:
-   multiply, so only the bubble (and its soft edges) shows — no visible box.
-   The wrapper carries the float/pulse motion and the amplitude-reactive scale
-   while speaking. */
 .voice-globe {
   width: 240px;
   height: 240px;
@@ -5700,9 +5337,7 @@ em { font-style: normal; }
   place-items: center;
   animation: voiceFloat 6s ease-in-out infinite;
   will-change: transform;
-  /* Clip the video's near-white matte so anti-aliased fringes never read as
-     a ring around the bubble (especially in dark mode). */
-  overflow: hidden;
+    overflow: hidden;
   border-radius: 50%;
 }
 .voice-globe-video {
@@ -5711,12 +5346,9 @@ em { font-style: normal; }
   border-radius: 50%;
   object-fit: contain;
   display: block;
-  /* multiply melts the video's white background into the cream canvas. */
-  mix-blend-mode: multiply;
+    mix-blend-mode: multiply;
   pointer-events: none;
 }
-/* On dark canvas multiply leaves a bright square/ring — darken instead and
-   scale up slightly so the asset's white padding falls outside the clip. */
 :root[data-theme="dark"] .voice-globe-video {
   mix-blend-mode: darken;
   transform: scale(1.14);
@@ -5739,14 +5371,7 @@ em { font-style: normal; }
   transition: transform 80ms ease-out;
 }
 
-/* ---- face + life overlays, layered on top of the (untouched) bubble video.
-   The video supplies the iridescence + blinking eyes; these add a glow, a
-   travelling specular glint, and a mouth that smiles at rest and "talks" with
-   the spoken audio. All are children of .voice-globe, so they float/scale with
-   it for free. ---- */
 
-/* Soft ambient halo behind the bubble — breathes, and grows with the voice
-   because the whole globe scales by --amp while speaking. */
 .voice-glow {
   position: absolute;
   inset: 0;
@@ -5766,9 +5391,6 @@ em { font-style: normal; }
   50%      { opacity: 0.95; transform: scale(1.06); }
 }
 
-/* Orbiting specular highlight — a glass-like glint that travels around the
-   bubble. Clipped to a circle inside the bubble so it never spills onto the
-   cream canvas; screen blend so it brightens whatever it passes over. */
 .voice-shine-clip {
   position: absolute;
   inset: 0;
@@ -5800,8 +5422,6 @@ em { font-style: normal; }
 }
 @keyframes voiceShineOrbit { to { transform: rotate(360deg); } }
 
-/* Mouth — centred under the eyes. Smiles at rest; opens with the audio
-   amplitude (--mouth) while speaking so the orb looks like it's talking. */
 .voice-mouth {
   position: absolute;
   left: 50%;
@@ -5821,15 +5441,11 @@ em { font-style: normal; }
 }
 .voice-smile path {
   fill: none;
-  /* Soft periwinkle (#cedbff) instead of pure white — bolder + crisper so it
-     reads as solid as the eye-pills rather than a hazy line. */
-  stroke: #cedbff;
+    stroke: #cedbff;
   stroke-width: 11;
   stroke-linecap: round;
   filter: drop-shadow(0 0 1.5px rgba(206, 219, 255, 0.5));
 }
-/* NOTE: must NOT be named .voice-open — that class is added to <body> while the
-   overlay is open, so this rule would collapse the whole page. */
 .voice-mouth-open {
   position: absolute;
   width: calc(24px - var(--mouth, 0) * 6px);
@@ -5840,12 +5456,9 @@ em { font-style: normal; }
   filter: drop-shadow(0 0 4px rgba(206, 219, 255, 0.6));
   transition: opacity 0.15s ease;
 }
-/* Speaking: the resting smile fades out and the talking mouth fades in
-   (its height tracks --mouth, set per-frame from the audio amplitude). */
 .voice-globe.speaking .voice-smile { opacity: 0; }
 .voice-globe.speaking .voice-mouth-open { opacity: 1; }
 
-/* Bottom control bar */
 .voice-bar {
   display: flex;
   align-items: center;
@@ -5861,8 +5474,7 @@ em { font-style: normal; }
   border-radius: 999px;
   padding: 14px 18px;
   font-family: var(--font-sans);
-  font-size: 16px; /* >=16px avoids iOS zoom-on-focus */
-  outline: none;
+  font-size: 16px;   outline: none;
   transition: border-color 150ms ease;
 }
 .voice-type::placeholder { color: var(--muted); }
@@ -5895,9 +5507,6 @@ em { font-style: normal; }
   .voice-shine-orbit { animation: none; }
 }
 
-/* =============================================================
-   Confirm Modal — Claude-style delete/confirm dialog
-   ============================================================= */
 
 .confirm-modal-overlay {
   position: fixed;
@@ -6055,7 +5664,6 @@ em { font-style: normal; }
   pointer-events: none;
 }
 
-/* Dark — charcoal card like Claude's "Delete chat" dialog */
 :root[data-theme="dark"] .confirm-modal-overlay {
   background: rgba(0, 0, 0, 0.62);
 }
@@ -6115,7 +5723,6 @@ em { font-style: normal; }
 
 
 
-/* Blade spinner (loading state for chat area) */
 .blade-spinner {
   font-size: 28px;
   position: relative;

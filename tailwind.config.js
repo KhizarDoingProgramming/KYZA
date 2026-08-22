@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
@@ -8,11 +7,11 @@ export default {
     extend: {
       colors: {
         background: {
-          light: '#FBFBFA', // Claude's workspace background
+          light: '#FBFBFA', 
           dark: '#1a1a1a',  
         },
         surface: {
-          light: '#F3F2EF', // Claude's sidebar color
+          light: '#F3F2EF', 
           dark: '#242424',
           hoverLight: '#E8E7E4',
           hoverDark: '#2a2a2a',
@@ -28,7 +27,7 @@ export default {
           dark: '#333333',
         },
         primary: {
-          DEFAULT: '#d97757', // Claude orange
+          DEFAULT: '#d97757', 
           hover: '#c46b4e',
         }
       },

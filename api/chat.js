@@ -62,7 +62,7 @@ async function runGemini(modelName, messages, genAI, systemPrompt) {
 }
 
 export default async function handler(req, res) {
-  // CORS setup for Serverless Functions
+  
   res.setHeader('Access-Control-Allow-Credentials', true)
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Need to dynamically init clients here to grab Vercel environment variables
+  
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
   const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
