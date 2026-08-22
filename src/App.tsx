@@ -713,18 +713,30 @@ export default function App() {
                                className={`message ${msg.role}`}
                                initial={{ opacity: 0, y: 10 }}
                                animate={{ opacity: 1, y: 0 }}
-                               style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '24px' }}
+                               style={{ 
+                                  display: 'flex', 
+                                  flexDirection: 'column', 
+                                  alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                                  gap: '4px', 
+                                  marginBottom: '24px' 
+                               }}
                             >
-                               <div className="content" style={{ margin: 0 }}>
-                                  <div className="author" style={{ fontWeight: 600, color: 'var(--ink)', marginBottom: '4px' }}>
-                                     {msg.role === 'assistant' ? 'Kyza' : 'You'}
-                                  </div>
-                                  <div className="text" style={{ whiteSpace: 'pre-wrap', color: 'var(--text-main)', lineHeight: '1.5' }}>
+                               <div className="content" style={{ margin: 0, maxWidth: '85%' }}>
+                                  <div className="text" style={{ 
+                                     whiteSpace: 'pre-wrap', 
+                                     lineHeight: '1.5',
+                                     padding: msg.role === 'user' ? '12px 16px' : '4px 0',
+                                     borderRadius: '18px',
+                                     borderBottomRightRadius: msg.role === 'user' ? '4px' : '18px',
+                                     borderBottomLeftRadius: msg.role === 'assistant' ? '4px' : '18px',
+                                     background: msg.role === 'user' ? 'var(--surface-card)' : 'transparent',
+                                     color: 'var(--ink)'
+                                  }}>
                                      {renderMessageContent(msg.content)}
                                   </div>
 
                                   {msg.attachments && msg.attachments.length > 0 && (
-                                      <div style={{display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap'}}>
+                                      <div style={{display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'}}>
                                          {msg.attachments.map((att: string, idx: number) => (
                                              <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
                                                 <img 
@@ -768,10 +780,11 @@ export default function App() {
                             </motion.article>
                          ))}
                          {isLoading && (
-                            <motion.article className="message assistant" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                               <div className="content">
-                                  <div className="author">Kyza</div>
-                                  <div className="text">Thinking...</div>
+                            <motion.article className="message assistant" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                               <div className="content" style={{ margin: 0 }}>
+                                  <div className="text" style={{ padding: '4px 0', color: 'var(--text-sub)', fontStyle: 'italic' }}>
+                                     Thinking...
+                                  </div>
                                </div>
                             </motion.article>
                          )}
