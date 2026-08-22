@@ -117,7 +117,7 @@ const LandingPage = ({ onLoginSuccess, onTryGuest, isMobile }: { onLoginSuccess:
 
        <div style={{ flex: isMobile ? 1 : '1 1 50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '40px' }}>
           
-          <img src="/favicon.jpeg" alt="Kyza Logo" style={{ width: '140px', height: '140px', borderRadius: '32px', marginBottom: '32px', boxShadow: '0 12px 48px rgba(0,0,0,0.4)', border: '1px solid var(--hairline-strong)' }} />
+          <img src="/logo.jpeg" alt="Kyza Logo" style={{ width: '140px', height: '140px', borderRadius: '32px', marginBottom: '32px', boxShadow: '0 12px 48px rgba(0,0,0,0.4)', border: '1px solid var(--hairline-strong)', objectFit: 'cover' }} />
           <h1 style={{ fontSize: '36px', fontWeight: 700, color: 'var(--ink)', marginBottom: '12px', textAlign: 'center', letterSpacing: '-0.5px' }}>Welcome to KYZA</h1>
           <p style={{ color: 'var(--text-sub)', marginBottom: '40px', fontSize: '16px', textAlign: 'center', maxWidth: '300px' }}>Your personal AI assistant. Log in to get started.</p>
           
