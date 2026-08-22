@@ -76,6 +76,19 @@ const renderMessageContent = (content: string) => {
     });
 };
 
+const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) {
+        return "Good morning. Systems online and ready.";
+    } else if (hour >= 12 && hour < 17) {
+        return "Good afternoon. What's on the agenda?";
+    } else if (hour >= 17 && hour < 22) {
+        return "Good evening. Still grinding?";
+    } else {
+        return "Late night, huh? Let's get this done.";
+    }
+};
+
 export default function App() {
   const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -831,7 +844,7 @@ export default function App() {
                               ))}
                            </span>
                         </div>
-                     ) : "What can Kyza help you with?"}
+                     ) : getGreeting()}
                  </motion.h1>
               )}
               <form className="composer" onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
