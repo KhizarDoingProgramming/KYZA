@@ -451,7 +451,7 @@ export default function App() {
                 const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
                 return [{
                     sessionId: currentSessionId,
-                    title: storedTitles[currentSessionId] || newMsg.content.substring(0, 30) + '...',
+                    title: storedTitles[currentSessionId] || (newMsg.content.length > 25 ? newMsg.content.substring(0, 25) + '...' : newMsg.content),
                     created_at: new Date().toISOString(),
                     messages: [newMsg]
                 }, ...prev];
@@ -461,6 +461,22 @@ export default function App() {
     
     if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
+    }
+
+    if (currentMessages.length === 1 && !isIncognito) {
+        // Fire off title generation concurrently with the chat response
+        fetch('/api/generate_title', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: currentMessages })
+        }).then(res => res.json()).then(titleData => {
+            if (titleData.title) {
+                const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
+                storedTitles[currentSessionId] = titleData.title;
+                localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
+                setChatHistory(prev => prev.map(chat => chat.sessionId === currentSessionId ? { ...chat, title: titleData.title } : chat));
+            }
+        }).catch(err => console.error("Failed to generate title:", err));
     }
 
     try {
@@ -497,23 +513,6 @@ export default function App() {
 
           }
       } catch(e) { console.error(e) }
-
-      try {
-          if (currentMessages.length === 1 && !isIncognito) {
-              fetch('/api/generate_title', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ messages: [...currentMessages, { role: 'assistant', content: data.content }] })
-              }).then(res => res.json()).then(titleData => {
-                  if (titleData.title) {
-                      const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
-                      storedTitles[currentSessionId] = titleData.title;
-                      localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
-                      setChatHistory(prev => prev.map(chat => chat.sessionId === currentSessionId ? { ...chat, title: titleData.title } : chat));
-                  }
-              }).catch(err => console.error("Failed to generate title:", err));
-          }
-      } catch (e) { console.error(e) }
 
       const extractBlock = (text: string, type: string) => {
          const regex = new RegExp(`\`\`\`${type}\\n([\\s\\S]*?)\`\`\``);
