@@ -154,7 +154,15 @@ export default function App() {
   
   const [isRecording, setIsRecording] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<{type: string, content: string} | null>(null);
-  
+  const [isArtifactFullScreen, setIsArtifactFullScreen] = useState(false);
+
+  const getPreviewableArtifact = (content: string) => {
+      const match = content.match(/```(html|svg|csv|markdown)\n([\s\S]*?)```/);
+      if (match) {
+          return { type: match[1], content: match[2].trim() };
+      }
+      return null;
+  };
   
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   
@@ -740,8 +748,9 @@ export default function App() {
         </AnimatePresence>
         
         <div className="app-main">
-          <div className="chat-page" style={{ flexDirection: isMobile ? 'column' : 'row' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: isMobile && activeArtifact ? '50%' : '100%', position: 'relative' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: 'hidden' }}>
+            {/* Chat Area */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: isMobile && activeArtifact ? (isArtifactFullScreen ? '0%' : '50%') : '100%', position: 'relative', overflow: 'hidden' }}>
               
               <header className="chat-topbar">
               <div className="inner" style={{display: 'flex', alignItems: 'center', width: '100%'}}>
@@ -838,20 +847,32 @@ export default function App() {
                                       </div>
                                   )}
                                   
-                                  {msg.role === 'assistant' && (
-                                     <div style={{ marginTop: '12px' }}>
-                                         <button 
-                                            onClick={() => {
-                                               speakWithHorimiyaVoice(msg.content);
-                                            }}
-                                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--surface-soft)', border: '1px solid var(--hairline)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: 'var(--text-sub)' }}
-                                           className="hover-bg"
-                                        >
-                                           <Volume2 size={14}/> Read aloud
-                                        </button>
-                                     </div>
-                                  )}
-                               </div>
+                                   {msg.role === 'assistant' && (
+                                      <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+                                          <button 
+                                             onClick={() => {
+                                                speakWithHorimiyaVoice(msg.content);
+                                             }}
+                                             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--surface-soft)', border: '1px solid var(--hairline)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: 'var(--text-sub)' }}
+                                            className="hover-bg"
+                                         >
+                                            <Volume2 size={14}/> Read aloud
+                                         </button>
+                                         
+                                         {getPreviewableArtifact(msg.content) && (
+                                             <button 
+                                                 onClick={() => {
+                                                     setActiveArtifact(getPreviewableArtifact(msg.content));
+                                                 }}
+                                                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--surface-soft)', border: '1px solid var(--hairline)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: 'var(--text-sub)' }}
+                                                 className="hover-bg"
+                                             >
+                                                <Eye size={14}/> Preview
+                                             </button>
+                                         )}
+                                      </div>
+                                   )}
+                                </div>
                             </motion.article>
                          ))}
                          {isLoading && (
@@ -1037,8 +1058,9 @@ export default function App() {
             {activeArtifact && (
               <motion.div 
                  initial={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
-                 animate={isMobile ? { height: '50%', opacity: 1 } : { width: '50%', opacity: 1 }}
+                 animate={isMobile ? { height: isArtifactFullScreen ? '100%' : '50%', opacity: 1 } : { width: '50%', opacity: 1 }}
                  exit={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
+                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                  style={{ 
                     borderLeft: isMobile ? 'none' : '1px solid var(--hairline-strong)', 
                     borderTop: isMobile ? '1px solid var(--hairline-strong)' : 'none',
@@ -1049,12 +1071,32 @@ export default function App() {
                     zIndex: 10
                  }}
               >
-                 <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--hairline-strong)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--ink)' }}>Preview ({activeArtifact.type})</div>
-                    <button onClick={() => setActiveArtifact(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)' }}>
+                 <motion.div 
+                    drag={isMobile ? "y" : false}
+                    dragConstraints={{ top: 0, bottom: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(_e: any, info: any) => {
+                        if (isMobile) {
+                            if (info.offset.y < -30) setIsArtifactFullScreen(true);
+                            else if (info.offset.y > 30) {
+                                if (isArtifactFullScreen) setIsArtifactFullScreen(false);
+                                else setActiveArtifact(null);
+                            }
+                        }
+                    }}
+                    style={{ padding: '12px 16px', borderBottom: '1px solid var(--hairline-strong)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: isMobile ? 'grab' : 'default', touchAction: 'none' }}
+                 >
+                    <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        Preview ({activeArtifact.type})
+                        {isMobile && <div style={{ width: '36px', height: '4px', background: 'var(--hairline-strong)', borderRadius: '2px' }} />}
+                    </div>
+                    <button onClick={() => {
+                        setActiveArtifact(null);
+                        setIsArtifactFullScreen(false);
+                    }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)' }}>
                        <X size={16} />
                     </button>
-                 </div>
+                 </motion.div>
                  <div style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
                     {activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? (
                         <iframe 
