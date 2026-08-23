@@ -498,6 +498,23 @@ export default function App() {
           }
       } catch(e) { console.error(e) }
 
+      try {
+          if (currentMessages.length === 1 && !isIncognito) {
+              fetch('/api/generate_title', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ messages: [...currentMessages, { role: 'assistant', content: data.content }] })
+              }).then(res => res.json()).then(titleData => {
+                  if (titleData.title) {
+                      const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
+                      storedTitles[currentSessionId] = titleData.title;
+                      localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
+                      setChatHistory(prev => prev.map(chat => chat.sessionId === currentSessionId ? { ...chat, title: titleData.title } : chat));
+                  }
+              }).catch(err => console.error("Failed to generate title:", err));
+          }
+      } catch (e) { console.error(e) }
+
       const extractBlock = (text: string, type: string) => {
          const regex = new RegExp(`\`\`\`${type}\\n([\\s\\S]*?)\`\`\``);
          const match = text.match(regex);
@@ -529,6 +546,19 @@ export default function App() {
     }
   };
 
+
+  useEffect(() => {
+    if (currentSessionId && chatHistory) {
+      const activeChat = chatHistory.find(c => c.sessionId === currentSessionId);
+      if (activeChat && activeChat.title) {
+        document.title = activeChat.title;
+      } else {
+        document.title = 'KYZA';
+      }
+    } else {
+      document.title = 'KYZA';
+    }
+  }, [currentSessionId, chatHistory]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
@@ -753,13 +783,18 @@ export default function App() {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: isMobile && activeArtifact ? (isArtifactFullScreen ? '0%' : '50%') : '100%', position: 'relative', overflow: 'hidden' }}>
               
               <header className="chat-topbar">
-              <div className="inner" style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                 {!isSidebarOpen && (
-                   <button onClick={() => setIsSidebarOpen(true)} className="menu" style={{marginRight: 'auto', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}>
-                     <PanelLeftOpen size={20}/>
-                   </button>
-                 )}
-                 <div className="chat-topbar-actions" style={{marginLeft: 'auto', display: 'flex', gap: '8px'}}>
+               <div className="inner" style={{display: 'flex', alignItems: 'center', width: '100%'}}>
+                  {!isSidebarOpen && (
+                    <button onClick={() => setIsSidebarOpen(true)} className="menu" style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}>
+                      <PanelLeftOpen size={20}/>
+                    </button>
+                  )}
+                  
+                  <div style={{ flex: 1, textAlign: 'center', fontWeight: 600, fontSize: '15px', color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: '0 16px' }}>
+                      {currentSessionId ? (chatHistory.find(c => c.sessionId === currentSessionId)?.title || 'New Chat') : 'KYZA'}
+                  </div>
+
+                  <div className="chat-topbar-actions" style={{display: 'flex', gap: '8px'}}>
                     <button 
                        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                        className="chat-topbar-incognito" 
