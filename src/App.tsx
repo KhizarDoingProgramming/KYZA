@@ -189,6 +189,11 @@ const LoadingIndicator = ({ selectedModel }: { selectedModel: any }) => {
 
 export default function App() {
   const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
+  const currentSessionIdRef = useRef(currentSessionId);
+  useEffect(() => {
+     currentSessionIdRef.current = currentSessionId;
+  }, [currentSessionId]);
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [chatHistory, setChatHistory] = useState<any[]>([]);
@@ -305,7 +310,7 @@ export default function App() {
           setIsAuthLoading(false);
           if (newSession?.user) {
              
-             const { error: updateError } = await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionId).is('user_id', null);
+             const { error: updateError } = await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionIdRef.current).is('user_id', null);
              if (updateError) console.error("Supabase update error:", updateError);
              fetchChats(newSession.user);
              if (newSession.user && showAuthModal) setShowAuthModal(false);
@@ -320,7 +325,7 @@ export default function App() {
 
   const fetchChats = async (currentUser: User | null) => {
     try {
-      const localSessionId = currentSessionId;
+      const localSessionId = currentSessionIdRef.current;
       let query = supabase.from('chats').select('*').order('created_at', { ascending: true });
       if (currentUser) {
           query = query.eq('user_id', currentUser.id);
@@ -761,6 +766,12 @@ export default function App() {
                                             <button 
                                                 onClick={() => {
                                                     setCurrentSessionId(chat.sessionId);
+                                                    const targetChat = chatHistory.find(c => c.sessionId === chat.sessionId);
+                                                    if (targetChat) {
+                                                        setMessages(targetChat.messages.map((m: any) => ({ role: m.role, content: m.content, attachments: m.attachments || [] })));
+                                                    } else {
+                                                        setMessages([]);
+                                                    }
                                                     if (isMobile) setIsSidebarOpen(false);
                                                 }}
                                                 style={{ 
