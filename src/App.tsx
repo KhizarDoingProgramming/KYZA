@@ -133,6 +133,60 @@ const LandingPage = ({ onLoginSuccess, onTryGuest, isMobile }: { onLoginSuccess:
   );
 };
 
+const LoadingIndicator = ({ selectedModel }: { selectedModel: any }) => {
+  const [phrase, setPhrase] = useState('');
+  
+  useEffect(() => {
+     const isPrism = selectedModel?.id === 'prism';
+     const options = isPrism ? [
+       "generating your masterpiece...",
+       "painting pixels...",
+       "brewing some art...",
+       "waking up the artist...",
+       "getting the canvas ready..."
+     ] : [
+       "cooking up some heat...",
+       "bet, give me a sec...",
+       "brain blasting...",
+       "let him cook...",
+       "vibing with the servers...",
+       "connecting to the mainframe...",
+       "asking the oracle...",
+       "hold up...",
+       "gathering the lore...",
+       "getting that bread...",
+       "doing the math..."
+     ];
+     setPhrase(options[Math.floor(Math.random() * options.length)]);
+     
+     const interval = setInterval(() => {
+        setPhrase(options[Math.floor(Math.random() * options.length)]);
+     }, 2000);
+     return () => clearInterval(interval);
+  }, [selectedModel]);
+
+  return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '4px 0' }}>
+          <video 
+              src="/thinking.mp4" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              ref={v => { if (v) v.playbackRate = 2.0; }}
+              style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+          />
+          <motion.div 
+             animate={{ opacity: [0.3, 1, 0.3] }}
+             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+             style={{ color: 'var(--text-sub)', fontStyle: 'italic', fontSize: '14px', fontWeight: 500 }}
+          >
+             {phrase}
+          </motion.div>
+      </div>
+  );
+};
+
 export default function App() {
   const [currentSessionId, setCurrentSessionId] = useState(getSessionId());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -907,9 +961,7 @@ export default function App() {
                          {isLoading && (
                             <motion.article className="message assistant" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                                <div className="content" style={{ margin: 0 }}>
-                                  <div className="text" style={{ padding: '4px 0', color: 'var(--text-sub)', fontStyle: 'italic' }}>
-                                     Thinking...
-                                  </div>
+                                  <LoadingIndicator selectedModel={selectedModel} />
                                </div>
                             </motion.article>
                          )}
