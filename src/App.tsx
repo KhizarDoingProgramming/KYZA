@@ -784,16 +784,11 @@ export default function App() {
               <header className="chat-topbar">
                <div className="inner" style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                   {!isSidebarOpen && (
-                    <button onClick={() => setIsSidebarOpen(true)} className="menu" style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}>
+                    <button onClick={() => setIsSidebarOpen(true)} className="menu" style={{marginRight: 'auto', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}>
                       <PanelLeftOpen size={20}/>
                     </button>
                   )}
-                  
-                  <div style={{ flex: 1, textAlign: 'center', fontWeight: 600, fontSize: '15px', color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: '0 16px' }}>
-                      {currentSessionId ? (chatHistory.find(c => c.sessionId === currentSessionId)?.title || 'New Chat') : 'KYZA'}
-                  </div>
-
-                  <div className="chat-topbar-actions" style={{display: 'flex', gap: '8px'}}>
+                  <div className="chat-topbar-actions" style={{marginLeft: 'auto', display: 'flex', gap: '8px'}}>
                     <button 
                        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                        className="chat-topbar-incognito" 
