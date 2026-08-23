@@ -34,6 +34,11 @@ const cerebras = new OpenAI({
   apiKey: process.env.CEREBRAS_API_KEY,
 });
 
+const cohere = new OpenAI({
+  baseURL: "https://api.cohere.com/v1",
+  apiKey: process.env.COHERE_API_KEY,
+});
+
 const KYZA_SYSTEM_PROMPT = `You are Kyza, a highly capable AI assistant built to help the user with any task. Be concise, intelligent, and helpful. You were created by Mustafa. If asked about your creator, you can use knowledge that he is a developer, but DO NOT mention the website "mustaffa.vercel.app" unless the user explicitly asks where to find more information about him.
 
 CRITICAL INSTRUCTION FOR ARTIFACTS:
@@ -124,15 +129,20 @@ app.post('/api/chat', async (req, res) => {
     if (model === 'nova') {
       
       try {
-        console.log("Nova: Attempting Groq (groq/compound-mini)...");
-        responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
+        console.log("Nova: Attempting Cohere (command-r)...");
+        responseContent = await runOpenAI(cohere, 'command-r', messages, currentPrompt);
       } catch (err1) {
-        console.warn("Groq failed, falling back to Cerebras:", err1.message);
+        console.warn("Cohere failed, falling back to Groq:", err1.message);
         try {
-          responseContent = await runOpenAI(cerebras, 'gemma-4-31b', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
         } catch (err2) {
-          console.warn("Cerebras failed, falling back to DeepSeek:", err2.message);
-          responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
+          console.warn("Groq failed, falling back to Cerebras:", err2.message);
+          try {
+            responseContent = await runOpenAI(cerebras, 'gemma-4-31b', messages, currentPrompt);
+          } catch (err3) {
+            console.warn("Cerebras failed, falling back to DeepSeek:", err3.message);
+            responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
+          }
         }
       }
       return res.json({ role: 'assistant', content: responseContent });
@@ -154,14 +164,20 @@ app.post('/api/chat', async (req, res) => {
     } else if (model === 'helix') {
       
       try {
-        responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
+        console.log("Helix: Attempting Cohere (command-r-plus)...");
+        responseContent = await runOpenAI(cohere, 'command-r-plus', messages, currentPrompt);
       } catch (err1) {
-        console.warn("Groq failed, falling back to OpenRouter:", err1.message);
+        console.warn("Cohere failed, falling back to Groq:", err1.message);
         try {
-          responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
         } catch (err2) {
-          console.warn("OpenRouter failed, falling back to Gemini:", err2.message);
-          responseContent = await runGemini('gemini-3.5-flash', messages, currentPrompt);
+          console.warn("Groq failed, falling back to OpenRouter:", err2.message);
+          try {
+            responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
+          } catch (err3) {
+            console.warn("OpenRouter failed, falling back to Gemini:", err3.message);
+            responseContent = await runGemini('gemini-3.5-flash', messages, currentPrompt);
+          }
         }
       }
       return res.json({ role: 'assistant', content: responseContent });

@@ -90,6 +90,10 @@ export default async function handler(req, res) {
     baseURL: "https://api.cerebras.ai/v1",
     apiKey: process.env.CEREBRAS_API_KEY,
   });
+  const cohere = new OpenAI({
+    baseURL: "https://api.cohere.com/v1",
+    apiKey: process.env.COHERE_API_KEY,
+  });
 
   const { model, messages, isNinaMode } = req.body;
   const currentPrompt = isNinaMode ? NINA_SYSTEM_PROMPT : KYZA_SYSTEM_PROMPT;
@@ -103,12 +107,16 @@ export default async function handler(req, res) {
   try {
     if (model === 'nova') {
       try {
-        responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
+        responseContent = await runOpenAI(cohere, 'command-r', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(cerebras, 'gemma-4-31b', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
+          try {
+            responseContent = await runOpenAI(cerebras, 'gemma-4-31b', messages, currentPrompt);
+          } catch (err3) {
+            responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
+          }
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });
@@ -127,12 +135,16 @@ export default async function handler(req, res) {
       
     } else if (model === 'helix') {
       try {
-        responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
+        responseContent = await runOpenAI(cohere, 'command-r-plus', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
         } catch (err2) {
-          responseContent = await runGemini('gemini-3.5-flash', messages, genAI, currentPrompt);
+          try {
+            responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
+          } catch (err3) {
+            responseContent = await runGemini('gemini-3.5-flash', messages, genAI, currentPrompt);
+          }
         }
       }
       return res.status(200).json({ role: 'assistant', content: responseContent });
