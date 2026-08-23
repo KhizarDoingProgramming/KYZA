@@ -5847,3 +5847,52 @@ em { font-style: normal; }
     background-color: transparent;
   }
 }
+
+/* Cat SVG Loading Animation */
+.outline {
+    fill: none;
+    stroke: var(--primary, #ffffff);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: drawOutline 12s linear infinite;
+}
+
+.detail-1, .detail-2, .detail-3, .detail-4 {
+    fill: none;
+    stroke: var(--primary, #ff9800);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    animation: drawDetail 12s linear infinite;
+}
+
+.detail-1, .detail-2 {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+}
+
+.detail-3 {
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
+}
+
+.detail-4 {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+}
+
+@keyframes drawOutline {
+    0% { stroke-dashoffset: 2000; opacity: 0.3; }
+    30% { stroke-dashoffset: 0; opacity: 1; }
+    80% { stroke-dashoffset: 0; opacity: 1; }
+    95% { stroke-dashoffset: 2000; opacity: 0.3; }
+    100% { stroke-dashoffset: 2000; opacity: 0.3; }
+}
+
+@keyframes drawDetail {
+    0%, 30% { stroke-dashoffset: 1000; opacity: 0; }
+    50%, 80% { stroke-dashoffset: 0; opacity: 1; }
+    95%, 100% { stroke-dashoffset: 1000; opacity: 0; }
+}
