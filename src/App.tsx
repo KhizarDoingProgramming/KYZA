@@ -101,7 +101,7 @@ const renderMessageContent = (content: string, onPreview?: (type: string, conten
                 const url = textParts[i+2];
                 renderedTextParts.push(
                     <div key={`img-${index}-${i}`} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
-                        <img src={url} alt={alt || 'Generated Image'} style={{ width: '100%', display: 'block' }} loading="lazy" />
+                        <img src={url} alt={alt || 'Generated Image'} style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
                     </div>
                 );
             }
@@ -865,7 +865,9 @@ export default function App() {
                  {msg.attachments && msg.attachments.length > 0 && (
                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
                          {msg.attachments.map((att: string, i: number) => (
-                             <img key={i} src={att} alt="Attachment" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid var(--border-subtle)' }} loading="lazy" />
+                             <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', width: '100%' }}>
+                                 <img src={att} alt="Generated Image" style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
+                             </div>
                          ))}
                      </div>
                  )}
