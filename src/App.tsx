@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2, Eye } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import ShaderCanvas from './ShaderCanvas';
@@ -24,7 +24,7 @@ const getSessionId = () => {
     return id;
 };
 
-const renderMessageContent = (content: string, onPreview?: (type: string, content: string) => void) => {
+const renderMessageContent = (content: string, onPreview?: (type: string, content: string) => void, onImageClick?: (url: string) => void) => {
     if (!content) return null;
     const parts = content.split(/(```[\w]*\n[\s\S]*?```)/g);
     return parts.map((part, index) => {
@@ -99,8 +99,13 @@ const renderMessageContent = (content: string, onPreview?: (type: string, conten
                 const alt = textParts[i+1];
                 const url = textParts[i+2];
                 renderedTextParts.push(
-                    <div key={`img-${index}-${i}`} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                    <div key={`img-${index}-${i}`} onClick={() => onImageClick?.(url)} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)', cursor: 'pointer', position: 'relative' }}>
                         <img src={url} alt={alt || 'Generated Image'} style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
+                        <div style={{ position: 'absolute', bottom: '8px', right: '8px', display: 'flex', gap: '6px' }}>
+                            <span style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', borderRadius: '8px', padding: '4px 10px', fontSize: '11px', color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Eye size={12} /> View
+                            </span>
+                        </div>
                     </div>
                 );
             }
@@ -125,7 +130,7 @@ const getGreeting = () => {
 
 const LandingPage = ({ onLoginSuccess, onTryGuest, isMobile }: { onLoginSuccess: any, onTryGuest: () => void, isMobile: boolean }) => {
   return (
-    <div className="app-container flex-center" style={{ position: 'relative', height: '100vh', height: '100dvh' }}>
+    <div className="app-container flex-center" style={{ position: 'relative', height: '100dvh' }}>
        {/* Background Glows */}
        <div style={{ position: 'absolute', top: '10%', left: '20%', width: '400px', height: '400px', background: 'var(--accent-primary)', opacity: 0.15, filter: 'blur(100px)', borderRadius: '50%' }} />
        <div style={{ position: 'absolute', bottom: '10%', right: '20%', width: '400px', height: '400px', background: 'var(--accent-secondary)', opacity: 0.15, filter: 'blur(100px)', borderRadius: '50%' }} />
@@ -251,6 +256,21 @@ export default function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<{type: string, content: string} | null>(null);
   const [isArtifactFullScreen, setIsArtifactFullScreen] = useState(false);
+
+  const previewBlobUrl = useMemo(() => {
+    if (!activeArtifact || (activeArtifact.type !== 'html' && activeArtifact.type !== 'svg')) return null;
+    const content = activeArtifact.type === 'html'
+      ? (activeArtifact.content.includes('<head>')
+          ? activeArtifact.content.replace('<head>', '<head><base href="/" target="_blank">')
+          : `<base href="/" target="_blank">\n${activeArtifact.content}`)
+      : activeArtifact.content;
+    const blob = new Blob([content], { type: activeArtifact.type === 'html' ? 'text/html' : 'image/svg+xml' });
+    return URL.createObjectURL(blob);
+  }, [activeArtifact]);
+
+  useEffect(() => {
+    return () => { if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl); };
+  }, [previewBlobUrl]);
 
   const getPreviewableArtifact = (content: string) => {
       const match = content.match(/```(html|svg|csv|markdown)\n([\s\S]*?)```/);
@@ -758,7 +778,7 @@ export default function App() {
 
   if (isAuthLoading) {
       return (
-          <div style={{ height: '100vh', height: '100dvh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--canvas)' }}>
+           <div style={{ height: '100dvh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--canvas)' }}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 582.54 222.34" style={{ maxWidth: '50%', maxHeight: '50%' }}>
                   <path className="outline" d="M162.57.18c13.83-2.55 23.68 23.61 28.74 24.63 7.71-3.99 21.53.45 27.92-.82 4.55-.91 14.24-22.57 24.63-23.81 17.15-2.04 14.79 36.19 16.83 45.57 2.57 11.8 10.05 25.14 11.08 38.18 37.74-5.26 82.76 5.69 100.99 41.87 32.86-2.84 94.25 4.16 87.44 50.49-2.22 15.1-31.14 47.68-47.21 37.36-6.7-4.31-4.04-16.17-.41-21.76 6.21-9.56 25.37-9.69 19.71-25.45-4.68-13.02-39.89-12.01-51.32-11.91-.55 22.17.9 47.75-18.88 62.4l220.45 2.87c-194.12 3.8-388.38 2.82-582.54.41l167.08-3.69c-13.21-12.37-19.87-34.88-21.35-52.55-1.07-12.84 3-34.48 1.64-44.34-.66-4.77-5.85-13.3-6.57-21.35-2.04-22.93 5.28-31.7 9.03-50.91 1.73-8.83.84-45.02 12.73-47.21Z" />
                   <path className="detail-1" d="M164.21 7.56c12.29 1.4 15.6 23.65 26.27 24.63 3.05.28 5.99-1.66 7.39-1.64 5.19.05 19.38 1.49 22.99.82 7.75-1.44 20.26-29.42 26.68-22.58 4.91 5.23 4.99 32.51 6.57 40.23 1.79 8.78 7.64 18.57 9.03 28.74 2.26 16.42-3.64 40.57 7.39 54.19 3.23 3.99 10.52 9.57 13.14 2.46-5.44-5.7-10.6-9.84-12.32-18.06-.88-4.23-2.41-24.29 2.05-25.86 1.16-.41 21.91-.96 24.63-.82 26.5 1.31 58.6 15.76 69.38 41.46 7.41 17.67 10.78 65.55-6.98 77.59-4.25 2.88-22.4 6.96-27.09 5.75-9.76-2.52 2.81-18.94 4.52-24.22 1.32-4.11 6.89-25.37-1.23-24.22-3.4.48-3.65 16.18-5.34 20.94-13.69 38.5-71.14 26.52-102.22 28.33 8.41-8.44 16.08-17.66 20.12-29.15 1.2-3.42 7.68-21.98-1.23-19.29-1.46.44-8.15 23.47-11.08 28.33-4.37 7.22-17.43 19.36-25.86 20.12-12.27 1.1.86-8.48 2.87-11.91 2.31-3.93 10.33-22.04 9.03-25.45-7.52-7.63-10.37 13.97-13.96 19.71-5.63 8.98-13.91 13.67-21.35 3.28-3.1-4.33-4.17-23.8-10.26-18.47-7.63 6.67 15.49 33.71-.82 31.2-16.33-2.51-23.68-45.59-24.22-58.71-.43-10.38 3.43-28.31 2.46-36.13-.24-1.92-5.05-10.35-5.75-13.96-5.01-25.82 3.71-36 8.21-58.29 1.04-5.15 1.36-37.27 6.98-39Z" />
@@ -918,12 +938,17 @@ export default function App() {
                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
                  className={`message-bubble ${msg.role === 'user' ? 'user' : 'assistant'}`}
               >
-                 {renderMessageContent(msg.content, (type, content) => setActiveArtifact({type, content}))}
+                 {renderMessageContent(msg.content, (type, content) => setActiveArtifact({type, content}), (url) => setPreviewImage(url))}
                  {msg.attachments && msg.attachments.length > 0 && (
                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
                          {msg.attachments.map((att: string, i: number) => (
-                             <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', width: '100%' }}>
+                             <div key={i} onClick={() => setPreviewImage(att)} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', width: '100%', cursor: 'pointer', position: 'relative' }}>
                                  <img src={att} alt="Generated Image" style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
+                                 <div style={{ position: 'absolute', bottom: '8px', right: '8px', display: 'flex', gap: '6px' }}>
+                                     <span style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', borderRadius: '8px', padding: '4px 10px', fontSize: '11px', color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                         <Eye size={12} /> View
+                                     </span>
+                                 </div>
                              </div>
                          ))}
                      </div>
@@ -1038,13 +1063,9 @@ export default function App() {
                   </div>
                </div>
                <div style={{ flex: 1, overflow: 'auto', background: activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? '#ffffff' : 'transparent' }}>
-                  {activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? (
+                   {activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? (
                      <iframe 
-                         srcDoc={activeArtifact.type === 'html' 
-                             ? (activeArtifact.content.includes('<head>') 
-                                 ? activeArtifact.content.replace('<head>', '<head><base target="_blank">')
-                                 : `<base target="_blank">\n${activeArtifact.content}`)
-                             : activeArtifact.content} 
+                         src={previewBlobUrl || ''}
                          style={{ width: '100%', height: '100%', border: 'none' }} 
                          title="Preview" 
                          sandbox="allow-scripts allow-forms allow-same-origin allow-popups" 
@@ -1054,6 +1075,52 @@ export default function App() {
                         {activeArtifact.content}
                      </pre>
                   )}
+               </div>
+            </motion.div>
+         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+         {previewImage && (
+            <motion.div
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               onClick={() => setPreviewImage(null)}
+               style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', cursor: 'zoom-out' }}
+            >
+               <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                  <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '12px', objectFit: 'contain', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }} />
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                     <button
+                        onClick={async () => {
+                           try {
+                              const res = await fetch(previewImage);
+                              const blob = await res.blob();
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              const ext = previewImage.includes('.png') ? 'png' : previewImage.includes('.webp') ? 'webp' : 'jpeg';
+                              a.download = `kyza-image-${Date.now()}.${ext}`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                           } catch {
+                              window.open(previewImage, '_blank');
+                           }
+                        }}
+                        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', borderRadius: '12px', padding: '10px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 500, backdropFilter: 'blur(8px)' }}
+                     >
+                        <Download size={16} /> Download
+                     </button>
+                     <button
+                        onClick={() => setPreviewImage(null)}
+                        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', borderRadius: '12px', padding: '10px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 500, backdropFilter: 'blur(8px)' }}
+                     >
+                        <X size={16} /> Close
+                     </button>
+                  </div>
                </div>
             </motion.div>
          )}
