@@ -864,7 +864,8 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <div className="chat-scroll-area">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 10, width: '100%', overflow: 'hidden' }}>
+          <div className="chat-scroll-area" style={{ flex: messages.length > 0 ? 1 : 0, overflowY: 'auto', padding: messages.length > 0 ? '24px' : 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {messages.map((msg, index) => (
               <motion.div 
                  key={index}
@@ -898,11 +899,19 @@ export default function App() {
       </div>
 
       <motion.div 
+         layout
          className="input-container-wrapper"
          initial={false}
-         animate={{ y: messages.length === 0 ? '-38vh' : 0 }}
          transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', bottom: '40px' }}
+         style={{ 
+             marginTop: messages.length === 0 ? 'auto' : '0',
+             marginBottom: messages.length === 0 ? 'auto' : '40px',
+             display: 'flex', 
+             flexDirection: 'column', 
+             alignItems: 'center', 
+             gap: '12px',
+             position: 'relative'
+         }}
       >
          {messages.length === 0 && (
              <motion.h1 
@@ -981,6 +990,7 @@ export default function App() {
 
 
       </motion.div>
+      </div>
 
       <AnimatePresence>
          {activeArtifact && (

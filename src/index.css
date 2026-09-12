@@ -87,7 +87,6 @@ h1, h2, h3, h4, p {
   flex-direction: column;
   gap: 24px;
   scroll-behavior: smooth;
-  padding-bottom: 120px; /* Space for docked input */
 }
 
 .chat-scroll-area::-webkit-scrollbar {
@@ -124,14 +123,13 @@ h1, h2, h3, h4, p {
   padding-left: 20px; /* Reset padding to match user bubble */
 }
 
-/* Input Area (Centered & Docked) */
+/* Input Area (Flexbox Docked) */
 .input-container-wrapper {
-  position: absolute;
-  left: 0;
-  right: 0;
   display: flex;
-  justify-content: center;
-  padding: 0 24px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
   pointer-events: none; /* Let clicks pass through empty space */
 }
 
