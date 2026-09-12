@@ -85,15 +85,17 @@ async function runGemini(modelName, messages, systemPrompt) {
     const parts = [{ text: m.content }];
     if (m.attachments && m.attachments.length > 0) {
       m.attachments.forEach(att => {
-        
-        const mimeType = att.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)[1];
-        const base64Data = att.split(',')[1];
-        parts.push({
-          inlineData: {
-            data: base64Data,
-            mimeType: mimeType
-          }
-        });
+        const match = att.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+        if (match) {
+          const mimeType = match[1];
+          const base64Data = att.split(',')[1];
+          parts.push({
+            inlineData: {
+              data: base64Data,
+              mimeType: mimeType
+            }
+          });
+        }
       });
     }
     return { role: m.role === 'assistant' ? 'model' : 'user', parts };
@@ -185,11 +187,17 @@ app.post('/api/chat', async (req, res) => {
     } else if (model === 'prism') {
       
       console.log("Prism: Attempting Pollinations...");
-      const promptText = messages[messages.length - 1].content;
+      if (!messages.length) {
+        return res.status(400).json({ error: 'Messages array is empty.' });
+      }
+      const promptText = messages[messages.length - 1].content || 'random image';
       const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;
       
       try {
         const imageRes = await fetch(imageUrl);
+        if (!imageRes.ok) {
+          throw new Error(`Pollinations returned ${imageRes.status}`);
+        }
         const arrayBuffer = await imageRes.arrayBuffer();
         const base64 = Buffer.from(arrayBuffer).toString('base64');
         const dataUrl = `data:image/jpeg;base64,${base64}`;

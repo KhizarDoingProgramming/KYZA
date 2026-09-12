@@ -567,7 +567,7 @@ export default function App() {
     }
 
     if (currentMessages.length === 1 && !isIncognito) {
-        // Fire off title generation concurrently with the chat response
+        const sessionIdForTitle = currentSessionId;
         fetch('/api/generate_title', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -575,9 +575,9 @@ export default function App() {
         }).then(res => res.json()).then(titleData => {
             if (titleData.title) {
                 const storedTitles = JSON.parse(localStorage.getItem('kyza_titles') || '{}');
-                storedTitles[currentSessionId] = titleData.title;
+                storedTitles[sessionIdForTitle] = titleData.title;
                 localStorage.setItem('kyza_titles', JSON.stringify(storedTitles));
-                setChatHistory(prev => prev.map(chat => chat.sessionId === currentSessionId ? { ...chat, title: titleData.title } : chat));
+                setChatHistory(prev => prev.map(chat => chat.sessionId === sessionIdForTitle ? { ...chat, title: titleData.title } : chat));
             }
         }).catch(err => console.error("Failed to generate title:", err));
     }
@@ -865,6 +865,17 @@ export default function App() {
       </AnimatePresence>
 
       <div className="chat-scroll-area">
+          {messages.length === 0 && (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+                  <motion.h1 
+                     initial={{ opacity: 0, y: -20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     className="text-gradient" 
+                     style={{ fontSize: '42px', fontWeight: 700, textAlign: 'center' }}>
+                     How can I help you today?
+                  </motion.h1>
+              </div>
+          )}
           {messages.map((msg, index) => (
               <motion.div 
                  key={index}
@@ -899,26 +910,7 @@ export default function App() {
 
       <div 
          className="input-container-wrapper"
-         style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            gap: '12px',
-            bottom: messages.length === 0 ? '50%' : '40px',
-            transform: messages.length === 0 ? 'translateY(50%)' : 'none',
-            transition: 'bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)'
-         }}
       >
-         {messages.length === 0 && (
-             <motion.h1 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-gradient" 
-                style={{ fontSize: '42px', fontWeight: 700, marginBottom: '16px' }}>
-                How can I help you today?
-             </motion.h1>
-         )}
-
          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', pointerEvents: 'auto' }}>
              <button className="header-btn" onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}>
                 {selectedModel.name} <ChevronDown size={14} />
@@ -960,7 +952,7 @@ export default function App() {
                <button type="button" className={`input-toggle-btn ${imageGenEnabled ? 'active' : ''}`} onClick={() => setImageGenEnabled(!imageGenEnabled)} title="Image Generation">
                   <ImageIcon size={18} />
                </button>
-               <button type="button" className={`input-toggle-btn ${isRecording ? 'active' : ''}`} onClick={() => setIsRecording(!isRecording)} title="Voice Input">
+               <button type="button" className={`input-toggle-btn ${isRecording ? 'active' : ''}`} onClick={toggleRecording} title="Voice Input">
                   <Mic size={18} />
                </button>
                <button type="button" className={`input-toggle-btn ${isLiveMode ? 'active' : ''}`} onClick={() => setIsLiveMode(!isLiveMode)} title="Nina Mode">
