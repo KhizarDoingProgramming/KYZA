@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2, Eye } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
+import ShaderCanvas from './ShaderCanvas';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import type { User } from '@supabase/supabase-js';
@@ -102,33 +103,47 @@ const getGreeting = () => {
 
 const LandingPage = ({ onLoginSuccess, onTryGuest, isMobile }: { onLoginSuccess: any, onTryGuest: () => void, isMobile: boolean }) => {
   return (
-    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', width: '100vw', background: 'var(--canvas)', overflow: 'hidden' }}>
-       <button 
-          onClick={onTryGuest}
-          style={{ position: 'absolute', top: '24px', right: '24px', padding: '10px 20px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', zIndex: 10, fontSize: '14px', letterSpacing: '0.5px' }}
-          className="hover-bg"
-       >
-          TRY KYZA
-       </button>
-       
-       <div style={{ flex: isMobile ? 1 : '1 1 50%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: isMobile ? 'none' : '1px solid var(--hairline-strong)', borderBottom: isMobile ? '1px solid var(--hairline-strong)' : 'none', padding: '40px', background: 'var(--surface)' }}>
-          <iframe src="/kyza-ad.html" style={{ width: '100%', maxWidth: '600px', height: '100%', maxHeight: '800px', border: 'none', borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }} title="KYZA Ad" />
-       </div>
+    <div className="app-container flex-center" style={{ position: 'relative' }}>
+       {/* Background Glows */}
+       <div style={{ position: 'absolute', top: '10%', left: '20%', width: '400px', height: '400px', background: 'var(--accent-primary)', opacity: 0.15, filter: 'blur(100px)', borderRadius: '50%' }} />
+       <div style={{ position: 'absolute', bottom: '10%', right: '20%', width: '400px', height: '400px', background: 'var(--accent-secondary)', opacity: 0.15, filter: 'blur(100px)', borderRadius: '50%' }} />
 
-       <div style={{ flex: isMobile ? 1 : '1 1 50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '40px' }}>
+       <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="glass-panel" 
+          style={{ padding: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90%', maxWidth: '420px', zIndex: 10, textAlign: 'center' }}
+       >
+          <img src="/logo.jpeg" alt="Kyza Logo" style={{ width: '80px', height: '80px', borderRadius: '24px', marginBottom: '24px', border: '1px solid var(--border-subtle)' }} />
           
-          <img src="/logo.jpeg" alt="Kyza Logo" style={{ width: '140px', height: '140px', borderRadius: '32px', marginBottom: '32px', boxShadow: '0 12px 48px rgba(0,0,0,0.4)', border: '1px solid var(--hairline-strong)', objectFit: 'cover' }} />
-          <h1 style={{ fontSize: '36px', fontWeight: 700, color: 'var(--ink)', marginBottom: '12px', textAlign: 'center', letterSpacing: '-0.5px' }}>Welcome to KYZA</h1>
-          <p style={{ color: 'var(--text-sub)', marginBottom: '40px', fontSize: '16px', textAlign: 'center', maxWidth: '300px' }}>Your personal AI assistant. Log in to get started.</p>
+          <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px', letterSpacing: '-0.5px' }}>Welcome to KYZA</h1>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>Experience the next generation of AI.</p>
           
-          <div style={{ transform: 'scale(1.1)' }}>
+          <div style={{ width: '100%', marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
               <GoogleLogin 
                  onSuccess={onLoginSuccess}
                  onError={() => console.error('Login Failed')}
                  useOneTap
+                 theme="filled_black"
+                 shape="pill"
               />
           </div>
-       </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle)' }} />
+              <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '1px' }}>or</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle)' }} />
+          </div>
+
+          <button 
+             onClick={onTryGuest}
+             className="send-button"
+             style={{ width: '100%', height: '44px', borderRadius: 'var(--radius-pill)', display: 'flex', justifyContent: 'center', fontWeight: 500, fontSize: '15px', background: 'var(--bg-surface-hover)', color: 'var(--text-primary)' }}
+          >
+             Continue as Guest
+          </button>
+       </motion.div>
     </div>
   );
 };
@@ -301,26 +316,35 @@ export default function App() {
 
   useEffect(() => {
     const initAuth = async () => {
-       const { data: { session } } = await supabase.auth.getSession();
-       setUser(session?.user ?? null);
-       setIsAuthLoading(false);
-       
-       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-          setUser(newSession?.user ?? null);
+       try {
+          const { data: { session } } = await supabase.auth.getSession();
+          setUser(session?.user ?? null);
+          
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+             setUser(newSession?.user ?? null);
+             setIsAuthLoading(false);
+             if (newSession?.user) {
+                
+                const { error: updateError } = await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionIdRef.current).is('user_id', null);
+                if (updateError) console.error("Supabase update error:", updateError);
+                fetchChats(newSession.user);
+                if (newSession.user && showAuthModal) setShowAuthModal(false);
+             }
+          });
+          fetchChats(session?.user ?? null);
+          
+          return () => subscription.unsubscribe();
+       } catch (error) {
+          console.error("Auth init error:", error);
+       } finally {
           setIsAuthLoading(false);
-          if (newSession?.user) {
-             
-             const { error: updateError } = await supabase.from('chats').update({ user_id: newSession.user.id }).eq('session_id', currentSessionIdRef.current).is('user_id', null);
-             if (updateError) console.error("Supabase update error:", updateError);
-             fetchChats(newSession.user);
-             if (newSession.user && showAuthModal) setShowAuthModal(false);
-          }
-       });
-       fetchChats(session?.user ?? null);
-       
-       return () => subscription.unsubscribe();
+       }
     };
-    if (import.meta.env.VITE_SUPABASE_URL) initAuth();
+    if (import.meta.env.VITE_SUPABASE_URL) {
+       initAuth();
+    } else {
+       setIsAuthLoading(false);
+    }
   }, []);
 
   const fetchChats = async (currentUser: User | null) => {
@@ -696,709 +720,226 @@ export default function App() {
       return <LandingPage onLoginSuccess={handleGoogleLogin} onTryGuest={() => setIsGuest(true)} isMobile={isMobile} />;
   }
 
-  return (
-    <div className="app-root">
-      <div className="app-shell">
-        
-        <AnimatePresence>
-          {isSidebarOpen && (
-              <motion.div 
-                 initial={{ opacity: 0 }} 
-                 animate={{ opacity: 1 }} 
-                 exit={{ opacity: 0 }} 
-                 onClick={() => setIsSidebarOpen(false)}
-                 style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(4px)', zIndex: 99 }}
-              />
-          )}
-        </AnimatePresence>
-        
-        <AnimatePresence initial={false}>
-          {isSidebarOpen && (
-              <motion.aside 
-                 initial={{ width: 0, opacity: 0 }}
-                 animate={{ width: 280, opacity: 1 }}
-                 exit={{ width: 0, opacity: 0 }}
-                 className="sidebar"
-                 style={{ 
-                    borderRight: '1px solid var(--hairline-strong)', 
-                    background: 'var(--surface-card)', 
-                    display: 'flex', flexDirection: 'column',
-                    position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 100 
-                 }}
-              >
-                 <div style={{ padding: '20px 16px', borderBottom: '1px solid var(--hairline-strong)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                       <img src="/favicon.jpeg" alt="KYZA Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
-                       <div>
-                           <div style={{ fontWeight: 700, fontSize: '18px', color: 'var(--ink)' }}>KYZA</div>
-                           <div style={{ fontSize: '12px', color: 'var(--text-sub)' }}>Your AI Assistant</div>
-                       </div>
-                    </div>
-                    <div style={{display: 'flex', gap: '8px'}}>
-                        <button onClick={handleNewChat} style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}} title="New Chat">
-                           <Plus size={18}/>
-                        </button>
-                        <button onClick={() => setIsSidebarOpen(false)} style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}} title="Close Sidebar">
-                           <PanelLeftClose size={18}/>
-                        </button>
-                    </div>
-                 </div>
-                 
-                 <div style={{padding: '12px', flex: 1, overflowY: 'auto'}}>
-                    <div style={{fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600}}>History</div>
-                    {user ? (
-                        chatHistory.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                {chatHistory.map((chat) => (
-                                    <div key={chat.sessionId} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                                        {editingChatId === chat.sessionId ? (
-                                            <input 
-                                                autoFocus
-                                                value={editingTitle}
-                                                onChange={e => setEditingTitle(e.target.value)}
-                                                onBlur={() => saveChatTitle(chat.sessionId, editingTitle)}
-                                                onKeyDown={e => {
-                                                    if (e.key === 'Enter') saveChatTitle(chat.sessionId, editingTitle);
-                                                    if (e.key === 'Escape') setEditingChatId(null);
-                                                }}
-                                                style={{
-                                                    flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)',
-                                                    background: 'var(--surface)', color: 'var(--ink)', fontSize: '13px', outline: 'none'
-                                                }}
-                                            />
-                                        ) : (
-                                            <button 
-                                                onClick={() => {
-                                                    setCurrentSessionId(chat.sessionId);
-                                                    const targetChat = chatHistory.find(c => c.sessionId === chat.sessionId);
-                                                    if (targetChat) {
-                                                        setMessages(targetChat.messages.map((m: any) => ({ role: m.role, content: m.content, attachments: m.attachments || [] })));
-                                                    } else {
-                                                        setMessages([]);
-                                                    }
-                                                    if (isMobile) setIsSidebarOpen(false);
-                                                }}
-                                                style={{ 
-                                                    flex: 1, textAlign: 'left', background: chat.sessionId === currentSessionId ? 'var(--surface-soft)' : 'transparent', 
-                                                    border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', 
-                                                    color: chat.sessionId === currentSessionId ? 'var(--ink)' : 'var(--text-sub)',
-                                                    fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                                                    paddingRight: '60px'
-                                                }}
-                                                className="hover-bg"
-                                            >
-                                                {chat.title}
-                                            </button>
-                                        )}
-                                        {editingChatId !== chat.sessionId && (
-                                            <div style={{ position: 'absolute', right: '4px', display: 'flex', gap: '4px' }}>
-                                                <button onClick={(e) => { e.stopPropagation(); setEditingTitle(chat.title); setEditingChatId(chat.sessionId); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }} className="hover-bg">
-                                                    <Edit2 size={12} />
-                                                </button>
-                                                <button onClick={(e) => { e.stopPropagation(); setChatToDelete(chat.sessionId); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }} className="hover-bg">
-                                                    <Trash2 size={12} />
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div style={{fontSize: '13px', color: 'var(--text-sub)', padding: '8px 4px'}}>No recent chats</div>
-                        )
-                    ) : (
-                        <div style={{fontSize: '13px', color: 'var(--text-sub)', padding: '8px 4px'}}>Sign in to save history</div>
-                    )}
-                 </div>
-
-                 {}
-                 <div style={{ padding: '12px', borderTop: '1px solid var(--hairline-strong)' }}>
-                     <button 
-                         onClick={() => user ? setShowProfileModal(true) : setShowAuthModal(true)}
-                         className="hover-bg"
-                         style={{ 
-                             width: '100%', display: 'flex', alignItems: 'center', gap: '12px', 
-                             padding: '12px', background: 'transparent', border: 'none', 
-                             cursor: 'pointer', borderRadius: '8px', color: 'var(--ink)' 
-                         }}
-                     >
-                         {user?.user_metadata?.avatar_url ? (
-                             <img src={user.user_metadata.avatar_url} alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '16px', objectFit: 'cover' }} />
-                         ) : (
-                             <div style={{ width: '32px', height: '32px', borderRadius: '16px', background: 'var(--surface-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                 {user ? <UserRound size={18} /> : <LogIn size={18} />}
-                             </div>
-                         )}
-                         <div style={{ textAlign: 'left', flex: 1, overflow: 'hidden' }}>
-                             <div style={{ fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                                 {user ? (user.user_metadata?.full_name || 'My Account') : 'Sign In'}
-                             </div>
-                             {user && <div style={{ fontSize: '12px', color: 'var(--text-sub)' }}>Settings</div>}
-                         </div>
-                     </button>
-                     
-                     <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                         <a href="/privacy.html" target="_blank" style={{ fontSize: '11px', color: 'var(--text-muted)', textDecoration: 'none' }} className="hover-text">Privacy Policy & Terms</a>
-                     </div>
-                 </div>
-              </motion.aside>
-          )}
-        </AnimatePresence>
-        
-        <div className="app-main">
-          <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: 'hidden' }}>
-            {/* Chat Area */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: isMobile && activeArtifact ? (isArtifactFullScreen ? '0%' : '50%') : '100%', position: 'relative', overflow: 'hidden' }}>
-              
-              <header className="chat-topbar">
-               <div className="inner" style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                  {!isSidebarOpen && (
-                    <button onClick={() => setIsSidebarOpen(true)} className="menu" style={{marginRight: 'auto', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}>
-                      <PanelLeftOpen size={20}/>
-                    </button>
-                  )}
-                  <div className="chat-topbar-actions" style={{marginLeft: 'auto', display: 'flex', gap: '8px'}}>
-                    <button 
-                       onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                       className="chat-topbar-incognito" 
-                       title={theme === 'light' ? "Dark Mode" : "Light Mode"} 
-                       style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)'}}
-                    >
-                       {theme === 'light' ? <Moon size={22} /> : <Sun size={22} />}
-                    </button>
-                    <button 
-                       onClick={() => {
-                           const newMode = !isIncognito;
-                           setIsIncognito(newMode);
-                           if (newMode) {
-                              setMessages([]);
-                              setActiveArtifact(null);
-                           }
-                       }}
-                       className={`chat-topbar-incognito ${isIncognito ? 'active' : ''}`} 
-                       title={isIncognito ? "Exit Temporary Chat" : "Enter Temporary Chat"} 
-                       style={{background: 'transparent', border: 'none', cursor: 'pointer', color: isIncognito ? 'var(--primary)' : 'var(--text-sub)'}}
-                    >
-                       <Ghost size={22} />
-                    </button>
-                 </div>
-              </div>
-            </header>
-
-            <div className="chat-scroll-area" style={{ display: messages.length === 0 ? 'none' : 'block', overflowY: 'auto', flex: 1 }}>
-              <div className="chat-stream">
-                    <div className="inner">
-                       <AnimatePresence>
-                         {messages.map((msg, i) => (
-                            <motion.article 
-                               key={i}
-                               className={`message ${msg.role}`}
-                               initial={{ opacity: 0, y: 10 }}
-                               animate={{ opacity: 1, y: 0 }}
-                               style={{ 
-                                  display: 'flex', 
-                                  flexDirection: 'column', 
-                                  alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                                  gap: '4px', 
-                                  marginBottom: '24px' 
-                               }}
-                            >
-                               <div className="content" style={{ margin: 0, maxWidth: '85%' }}>
-                                  <div className="text" style={{ 
-                                     whiteSpace: 'pre-wrap', 
-                                     lineHeight: '1.5',
-                                     padding: msg.role === 'user' ? '12px 16px' : '4px 0',
-                                     borderRadius: '18px',
-                                     borderBottomRightRadius: msg.role === 'user' ? '4px' : '18px',
-                                     borderBottomLeftRadius: msg.role === 'assistant' ? '4px' : '18px',
-                                     background: msg.role === 'user' ? 'var(--surface-card)' : 'transparent',
-                                     color: 'var(--ink)'
-                                  }}>
-                                     {renderMessageContent(msg.content, (type, content) => setActiveArtifact({type, content}))}
-                                  </div>
-
-                                  {msg.attachments && msg.attachments.length > 0 && (
-                                      <div style={{display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'}}>
-                                         {msg.attachments.map((att: string, idx: number) => (
-                                             <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
-                                                <img 
-                                                   src={att} 
-                                                   alt="attachment" 
-                                                   style={{width: '200px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', display: 'block', cursor: 'zoom-in'}} 
-                                                   onClick={() => setPreviewImage(att)}
-                                                />
-                                                <button 
-                                                   onClick={(e) => {
-                                                       e.stopPropagation();
-                                                      const a = document.createElement('a');
-                                                      a.href = att;
-                                                      a.download = `kyza-image-${idx}.png`;
-                                                      a.click();
-                                                  }}
-                                                  style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
-                                                  title="Download Image"
-                                               >
-                                                  <Download size={14} />
-                                               </button>
-                                            </div>
-                                         ))}
-                                      </div>
-                                  )}
-                                  
-                                   {msg.role === 'assistant' && (
-                                      <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
-                                          <button 
-                                             onClick={() => {
-                                                speakWithHorimiyaVoice(msg.content);
-                                             }}
-                                             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--surface-soft)', border: '1px solid var(--hairline)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: 'var(--text-sub)' }}
-                                            className="hover-bg"
-                                         >
-                                            <Volume2 size={14}/> Read aloud
-                                         </button>
-                                         
-                                         {getPreviewableArtifact(msg.content) && (
-                                             <button 
-                                                 onClick={() => {
-                                                     setActiveArtifact(getPreviewableArtifact(msg.content));
-                                                 }}
-                                                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--surface-soft)', border: '1px solid var(--hairline)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: 'var(--text-sub)' }}
-                                                 className="hover-bg"
-                                             >
-                                                <Eye size={14}/> Preview
-                                             </button>
-                                         )}
-                                      </div>
-                                   )}
-                                </div>
-                            </motion.article>
-                         ))}
-                         {isLoading && (
-                            <motion.article className="message assistant" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                               <div className="content" style={{ margin: 0 }}>
-                                  <LoadingIndicator selectedModel={selectedModel} />
-                               </div>
-                            </motion.article>
-                         )}
-                       </AnimatePresence>
-                       <div ref={messagesEndRef} />
-                    </div>
-              </div>
-            </div>
-
-            <div 
-               className="composer-wrap"
-               style={messages.length === 0 ? {
-                   position: 'absolute',
-                   top: '40%',
-                   left: '50%',
-                   transform: 'translate(-50%, -50%)',
-                   width: '100%',
-                   maxWidth: '800px',
-                   padding: '0 20px',
-               } : {
-                   width: '100%',
-                   padding: '20px'
-               }}
-            >
-              {messages.length === 0 && (
-                 <motion.h1 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    style={{ textAlign: 'center', fontSize: '28px', fontWeight: 600, color: 'var(--ink)', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}
-                 >
-                     {isIncognito ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                           <Sparkles size={28} color="var(--primary)" />
-                           <span>
-                              {"Temporary chat mode".split("").map((char, index) => (
-                                 <motion.span
-                                    key={index}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.05, delay: index * 0.05 }}
-                                 >
-                                    {char}
-                                 </motion.span>
-                              ))}
-                           </span>
-                        </div>
-                     ) : getGreeting()}
-                 </motion.h1>
-              )}
-              <form className="composer" onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
-                 <input 
-                    type="file" 
-                    multiple
-                    ref={fileInputRef} 
-                    style={{display: 'none'}} 
-                    onChange={handleFileChange}
-                 />
-
-                 <div className="composer-box glass">
-                    {attachments.length > 0 && (
-                       <div style={{ display: 'flex', gap: '8px', padding: '8px 8px 0 8px', flexWrap: 'wrap' }}>
-                          {attachments.map((att, idx) => (
-                             <div key={idx} style={{ position: 'relative' }}>
-                                <img src={att} alt="preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--hairline-strong)' }} />
-                                <button 
-                                   type="button"
-                                   onClick={() => setAttachments(prev => prev.filter((_, i) => i !== idx))}
-                                   style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--surface-strong)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
-                                >
-                                   <X size={12} />
-                                </button>
-                             </div>
-                          ))}
-                       </div>
-                    )}
-                    <textarea 
-                       ref={textareaRef}
-                       rows={1}
-                       placeholder="How can Kyza help you today?"
-                       value={input}
-                       onChange={(e) => { setInput(e.target.value); autoSize(e.target); }}
-                       onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                             e.preventDefault();
-                             handleSend();
-                          }
-                       }}
-                       disabled={isRecording}
-                    />
-                    <div className="composer-toolbar">
-                        <div className="composer-toolbar-left">
-                           <button type="button" className="composer-attach" title="Attach file" onClick={() => fileInputRef.current?.click()}>
-                              <Plus size={16}/>
-                           </button>
-                           <button 
-                              type="button" 
-                              className={`composer-tools-btn ${webSearchEnabled ? 'active' : ''}`} 
-                              title="Web Search" 
-                              onClick={() => { 
-                                 const nextState = !webSearchEnabled;
-                                 setWebSearchEnabled(nextState); 
-                                 if (nextState) {
-                                     setSelectedModel(MODELS.find(m => m.id === 'atlas') || MODELS[0]); 
-                                     setImageGenEnabled(false);
-                                 }
-                              }}
-                           >
-                              <Globe size={18} color={webSearchEnabled ? 'var(--primary)' : 'currentColor'} />
-                           </button>
-                           <button 
-                              type="button" 
-                              className={`composer-tools-btn ${imageGenEnabled ? 'active' : ''}`} 
-                              title="Image Generation" 
-                              onClick={() => { 
-                                 const nextState = !imageGenEnabled;
-                                 setImageGenEnabled(nextState); 
-                                 if (nextState) {
-                                     setSelectedModel(MODELS.find(m => m.id === 'prism') || MODELS[0]);
-                                     setWebSearchEnabled(false);
-                                 }
-                              }}
-                           >
-                              <ImageIcon size={18} color={imageGenEnabled ? 'var(--primary)' : 'currentColor'} />
-                           </button>
-                        </div>
-                        
-                        <div className="composer-toolbar-actions">
-                           <div className="model-badge-wrap" style={{position: 'relative'}}>
-                              <button type="button" className="model-badge model-badge-button" style={{background: 'var(--surface-soft)', padding: '6px 12px', borderRadius: '16px', border: '1px solid var(--hairline-strong)', gap: '6px'}} onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}>
-                                 <span className="model-label" style={{fontSize: '13px', fontWeight: 500, color: 'var(--ink)'}}>{selectedModel.name} <span style={{opacity: 0.6}}>{selectedModel.version}</span></span>
-                                 <span className="caret"><ChevronDown size={14}/></span>
-                              </button>
-                              {isModelDropdownOpen && (
-                                 <div className="model-dropdown open" style={{position: 'absolute', bottom: 'calc(100% + 8px)', right: 0, width: '240px', zIndex: 100}}>
-                                    {MODELS.map(m => (
-                                       <button key={m.id} type="button" className={`model-dropdown-item ${selectedModel.id === m.id ? 'active' : ''}`} onClick={() => { setSelectedModel(m); setIsModelDropdownOpen(false); }}>
-                                          <span className="menu-text">
-                                             <span className="menu-title">{m.name} <span style={{opacity: 0.6}}>{m.version}</span></span>
-                                             <span className="menu-sub">{m.description}</span>
-                                          </span>
-                                          {selectedModel.id === m.id && <span className="menu-check"><Check size={16}/></span>}
-                                       </button>
-                                    ))}
-                                 </div>
-                              )}
-                           </div>
-                           <button type="button" className={`model-badge-button hover-bg ${isLiveMode ? 'active' : ''}`} style={{background: isLiveMode ? 'var(--primary)' : 'var(--surface-soft)', color: isLiveMode ? '#fff' : 'var(--ink)', padding: '6px 12px', borderRadius: '16px', border: '1px solid var(--hairline-strong)', display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '6px'}} onClick={() => setIsLiveMode(!isLiveMode)} title="Talk with Nina">
-                              <UserRound size={16} /> <span style={{fontSize: '13px', fontWeight: 600}}>Nina</span>
-                           </button>
-                          {input.trim() || attachments.length > 0 ? (
-                             <button type="submit" className="send"><Send size={16}/></button>
-                          ) : (
-                             <button 
-                                type="button" 
-                                className={`voice-assistant-btn ${isRecording ? 'recording' : ''}`} 
-                                onClick={toggleRecording}
-                             >
-                                <motion.div animate={isRecording ? { scale: [1, 1.2, 1], opacity: [1, 0.5, 1] } : {}} transition={isRecording ? { repeat: Infinity, duration: 1.5 } : {}}>
-                                   <Mic size={20} color={isRecording ? 'red' : 'currentColor'}/>
-                                </motion.div>
-                             </button>
-                          )}
-                       </div>
-                    </div>
-                 </div>
-              </form>
-              <div className="hints" style={{textAlign: 'center', marginTop: '8px', fontSize: '12px', color: 'var(--muted)'}}>
-                 <span>Use <kbd>Shift</kbd> + <kbd>Return</kbd> for a new line.</span>
-              </div>
-            </div>
-          </div>
-          
-          {}
-          <AnimatePresence>
-            {activeArtifact && (
-              <motion.div 
-                 initial={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
-                 animate={isMobile ? { height: isArtifactFullScreen ? '100%' : '50%', opacity: 1 } : { width: '50%', opacity: 1 }}
-                 exit={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
-                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                 style={{ 
-                    borderLeft: isMobile ? 'none' : '1px solid var(--hairline-strong)', 
-                    borderTop: isMobile ? '1px solid var(--hairline-strong)' : 'none',
-                    background: 'var(--surface-card)', 
-                    display: 'flex', 
-                    flexDirection: 'column',
-                    overflow: 'hidden',
-                    zIndex: 10
-                 }}
-              >
-                 <motion.div 
-                    drag={isMobile ? "y" : false}
-                    dragConstraints={{ top: 0, bottom: 0 }}
-                    dragElastic={0.2}
-                    onDragEnd={(_e: any, info: any) => {
-                        if (isMobile) {
-                            if (info.offset.y < -30) setIsArtifactFullScreen(true);
-                            else if (info.offset.y > 30) {
-                                if (isArtifactFullScreen) setIsArtifactFullScreen(false);
-                                else setActiveArtifact(null);
-                            }
-                        }
-                    }}
-                    style={{ padding: '12px 16px', borderBottom: '1px solid var(--hairline-strong)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: isMobile ? 'grab' : 'default', touchAction: 'none' }}
-                 >
-                    <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        Preview ({activeArtifact.type})
-                        {isMobile && <div style={{ width: '36px', height: '4px', background: 'var(--hairline-strong)', borderRadius: '2px' }} />}
-                    </div>
-                    <button onClick={() => {
-                        setActiveArtifact(null);
-                        setIsArtifactFullScreen(false);
-                    }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-sub)' }}>
-                       <X size={16} />
-                    </button>
-                 </motion.div>
-                 <div style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
-                    {activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? (
-                        <iframe 
-                           srcDoc={activeArtifact.content} 
-                           style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px', background: '#fff' }} 
-                           sandbox="allow-scripts allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox allow-same-origin"
-                        />
-                    ) : activeArtifact.type === 'csv' ? (
-                        <div style={{ background: 'var(--surface-card)', borderRadius: '8px', overflowX: 'auto', border: '1px solid var(--hairline-strong)' }}>
-                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                              <thead>
-                                 <tr>
-                                    {activeArtifact.content.trim().split('\n')[0].split(',').map((h: string, i: number) => (
-                                       <th key={i} style={{ borderBottom: '2px solid var(--hairline-strong)', padding: '12px', textAlign: 'left', background: 'var(--surface-soft)' }}>{h}</th>
-                                    ))}
-                                 </tr>
-                              </thead>
-                              <tbody>
-                                 {activeArtifact.content.trim().split('\n').slice(1).map((row: string, i: number) => (
-                                    <tr key={i}>
-                                       {row.split(',').map((cell: string, j: number) => (
-                                          <td key={j} style={{ borderBottom: '1px solid var(--hairline)', padding: '12px' }}>{cell}</td>
-                                       ))}
-                                    </tr>
-                                 ))}
-                              </tbody>
-                           </table>
-                        </div>
-                    ) : (
-                        <div style={{ background: 'var(--surface-card)', color: 'var(--ink)', padding: '24px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', overflowX: 'auto', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-                           {activeArtifact.content}
-                        </div>
-                    )}
-                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          </div>
-        </div>
+   return (
+    <div className="app-container">
+      {/* Animated Background */}
+      <div className={`animated-bg ${messages.length > 0 ? 'active' : ''}`}>
+         <ShaderCanvas />
       </div>
 
-      {}
+      {/* Header */}
+      <header className="app-header">
+         <button className="header-btn icon-only" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <PanelLeftOpen size={18} />
+         </button>
+         
+         <button className="header-btn icon-only" onClick={() => setShowProfileModal(true)}>
+            <UserRound size={18} />
+         </button>
+      </header>
+
+      {/* Sidebar Overlay & Panel */}
       <AnimatePresence>
-         {isLiveMode && (
-            <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, y: 20 }}
-               style={{
-                  position: 'fixed',
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  zIndex: 9999,
-                  background: '#000',
-                  display: 'flex',
-                  flexDirection: 'column',
-               }}
-            >
-               <div style={{ flex: 1, position: 'relative' }}>
-                   <NinaAvatar />
-                   
-                   {}
-                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '24px', display: 'flex', justifyContent: 'flex-end', zIndex: 100 }}>
-                       <button 
-                          onClick={() => setIsLiveMode(false)}
-                          style={{
-                              width: '48px', height: '48px', borderRadius: '24px',
-                              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                              backdropFilter: 'blur(10px)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              color: '#FFF', cursor: 'pointer',
-                          }}
-                       >
-                           <X size={24} />
-                       </button>
+         {isSidebarOpen && (
+             <>
+                <motion.div 
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   exit={{ opacity: 0 }}
+                   className="sidebar-overlay"
+                   onClick={() => setIsSidebarOpen(false)}
+                />
+                <motion.div 
+                   initial={{ x: '-100%' }}
+                   animate={{ x: 0 }}
+                   exit={{ x: '-100%' }}
+                   transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                   className="sidebar"
+                >
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                      <h2 style={{ fontSize: '18px', fontWeight: 600 }}>Chat History</h2>
+                      <button onClick={() => setIsSidebarOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
                    </div>
-
-                   {}
-                   <div style={{ position: 'absolute', bottom: '40px', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', zIndex: 100 }}>
-                       
-                        {}
-                        <div style={{ width: '90%', maxWidth: '600px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', borderRadius: '16px', padding: '12px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
-                            {isLoading ? (
-                                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Nina is thinking...</div>
-                            ) : (
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                    <input 
-                                       type="text" 
-                                       value={input}
-                                       onChange={(e) => setInput(e.target.value)}
-                                       onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
-                                       placeholder="Say something..."
-                                       style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontSize: '16px', minWidth: 0 }}
-                                    />
-                                    <button id="live-send-btn" onClick={handleSend} style={{ background: 'var(--primary)', color: '#fff', border: 'none', width: '36px', height: '36px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-                                        <Send size={16} />
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
-                        {}
-                        <button 
-                           onClick={toggleRecording}
-                           style={{
-                               width: '64px', height: '64px', borderRadius: '32px',
-                               background: isRecording ? 'rgba(255,59,48,0.2)' : 'rgba(255,255,255,0.1)',
-                               border: isRecording ? '2px solid #FF3B30' : '1px solid rgba(255,255,255,0.2)',
-                               backdropFilter: 'blur(10px)',
-                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                               color: isRecording ? '#FF3B30' : '#FFF',
-                               cursor: 'pointer',
-                               boxShadow: isRecording ? '0 0 30px rgba(255,59,48,0.4)' : '0 4px 20px rgba(0,0,0,0.3)',
-                               transition: 'all 0.2s',
-                               marginTop: isMobile ? '-10px' : '0'
-                           }}
-                        >
-                            <Mic size={28} />
-                        </button>
+                   <button 
+                      onClick={() => { setCurrentSessionId('anon-' + Math.random().toString(36).substring(2, 15)); setMessages([]); setIsSidebarOpen(false); }}
+                      style={{ background: 'var(--accent-primary)', color: '#fff', border: 'none', padding: '10px', borderRadius: 'var(--radius-md)', fontWeight: 600, cursor: 'pointer', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                   >
+                      <Plus size={16} /> New Chat
+                   </button>
+                   <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {chatHistory.length === 0 && <div style={{ color: 'var(--text-secondary)', fontSize: '14px', textAlign: 'center', marginTop: '20px' }}>No history yet.</div>}
+                      {chatHistory.map(chat => (
+                         <div key={chat.session_id} className={`chat-history-item ${chat.session_id === currentSessionId ? 'active' : ''}`} onClick={() => { /* load chat */ }}>
+                            <div style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                               {chat.title || 'Untitled Chat'}
+                            </div>
+                         </div>
+                      ))}
                    </div>
-               </div>
-            </motion.div>
+                </motion.div>
+             </>
          )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {showAuthModal && (
-          <motion.div 
-             initial={{ opacity: 0 }} 
-             animate={{ opacity: 1 }} 
-             exit={{ opacity: 0 }} 
-             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', zIndex: 999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-          >
-             <div style={{ background: 'var(--surface)', padding: '40px', borderRadius: '20px', textAlign: 'center', maxWidth: '400px', border: '1px solid var(--border)' }}>
-                <img src="/favicon.jpeg" alt="Kyza Logo" style={{ width: '64px', height: '64px', borderRadius: '16px', margin: '0 auto 20px', objectFit: 'cover', display: 'block' }} />
-                <h2 style={{ marginBottom: '10px' }}>Sign in to KYZA</h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', fontSize: '14px' }}>
-                  Sign in with Google to save your chat history and unlock all features.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <GoogleLogin 
-                        onSuccess={handleGoogleLogin}
-                        onError={() => console.error('Login Failed')}
-                        useOneTap
-                    />
-                </div>
-                <button onClick={() => setShowAuthModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', marginTop: '20px', cursor: 'pointer' }}>
-                   Cancel
-                </button>
-             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {chatToDelete && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
-             <div style={{ background: 'var(--surface-sunken)', border: '1px solid var(--hairline-strong)', borderRadius: '24px', padding: '32px', width: '90%', maxWidth: '400px', color: 'var(--text-main)', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-                <h3 style={{ marginBottom: '10px' }}>Delete Chat</h3>
-                <p style={{ color: 'var(--text-sub)', lineHeight: 1.5, margin: 0 }}>
-                  Are you sure you want to delete this chat? This action cannot be undone.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
-                    <button onClick={() => setChatToDelete(null)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '12px', cursor: 'pointer', fontWeight: 500 }} className="hover-bg">
-                        Cancel
-                    </button>
-                    <button onClick={confirmDeleteChat} style={{ padding: '10px 20px', background: '#FF3B30', border: 'none', color: '#FFF', borderRadius: '12px', cursor: 'pointer', fontWeight: 500 }}>
-                        Delete
-                    </button>
-                </div>
-             </div>
-          </div>
-        )}
-
-        {previewImage && (
-           <div 
-              onClick={() => setPreviewImage(null)} 
-              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)', cursor: 'zoom-out' }}
-           >
-              <img 
-                 src={previewImage} 
-                 alt="Preview Fullscreen" 
-                 style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '12px', objectFit: 'contain', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }} 
-                 onClick={(e) => e.stopPropagation()} 
-              />
-              <button 
-                 onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}
-                 style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '12px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}
-                 title="Close Preview"
-              >
-                 <X size={24} />
-              </button>
-           </div>
-        )}
-      </AnimatePresence>
-
+      {/* Profile Modal */}
       <AnimatePresence>
         {showProfileModal && user && (
            <ProfileModal 
               user={user} 
               onClose={() => setShowProfileModal(false)} 
-              onLogout={handleLogout} 
+              onLogout={() => supabase.auth.signOut()} 
            />
         )}
       </AnimatePresence>
+      
+      {/* Full-Screen Nina Mode */}
+      <AnimatePresence>
+        {isLiveMode && (
+           <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="nina-fullscreen-overlay"
+           >
+              <div className="nina-canvas-container">
+                  <NinaAvatar />
+              </div>
+              <div className="nina-ui-layer">
+                 <div className="nina-header">
+                    <h2 style={{ fontSize: '24px', fontWeight: 600, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>Nina Mode</h2>
+                    <button className="nina-close-btn" onClick={() => setIsLiveMode(false)}>
+                       <X size={24} />
+                    </button>
+                 </div>
+                 
+                 <div style={{ display: 'flex', gap: '16px', pointerEvents: 'auto' }}>
+                    {/* Voice visualizer placeholder */}
+                    <div style={{ padding: '16px 32px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)', borderRadius: '999px', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                       <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Listening...</span>
+                       <div style={{ display: 'flex', gap: '4px', height: '16px', alignItems: 'center' }}>
+                          <motion.div animate={{ height: ['4px', '16px', '4px'] }} transition={{ repeat: Infinity, duration: 0.8 }} style={{ width: '4px', background: 'var(--accent-primary)', borderRadius: '2px' }} />
+                          <motion.div animate={{ height: ['4px', '12px', '4px'] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.2 }} style={{ width: '4px', background: 'var(--accent-secondary)', borderRadius: '2px' }} />
+                          <motion.div animate={{ height: ['4px', '16px', '4px'] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.4 }} style={{ width: '4px', background: 'var(--accent-primary)', borderRadius: '2px' }} />
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </motion.div>
+        )}
+      </AnimatePresence>
 
+      <div className="chat-scroll-area">
+          {messages.map((msg, index) => (
+              <motion.div 
+                 key={index}
+                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                 animate={{ opacity: 1, y: 0, scale: 1 }}
+                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                 className={`message-bubble ${msg.role === 'user' ? 'user' : 'assistant'}`}
+              >
+                 {renderMessageContent(msg.content)}
+              </motion.div>
+          ))}
+          {isLoading && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="message-bubble assistant">
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', height: '24px' }}>
+                     <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} style={{ width: '6px', height: '6px', background: 'var(--accent-primary)', borderRadius: '50%' }} />
+                     <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} style={{ width: '6px', height: '6px', background: 'var(--accent-secondary)', borderRadius: '50%' }} />
+                     <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} style={{ width: '6px', height: '6px', background: 'var(--text-primary)', borderRadius: '50%' }} />
+                  </div>
+              </motion.div>
+          )}
+      </div>
+
+      <motion.div 
+         layout
+         className="input-container-wrapper"
+         initial={false}
+         animate={{
+            bottom: messages.length === 0 ? '50%' : '40px',
+            y: messages.length === 0 ? '50%' : '0%'
+         }}
+         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}
+      >
+         {messages.length === 0 && (
+             <motion.h1 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-gradient" 
+                style={{ fontSize: '42px', fontWeight: 700, marginBottom: '16px' }}>
+                How can I help you today?
+             </motion.h1>
+         )}
+
+         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', pointerEvents: 'auto' }}>
+             <button className="header-btn" onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}>
+                {selectedModel.name} <ChevronDown size={14} />
+             </button>
+             <AnimatePresence>
+                {isModelDropdownOpen && (
+                   <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="glass-panel"
+                      style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '8px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '150px', zIndex: 100, pointerEvents: 'auto' }}
+                   >
+                      {MODELS.map(model => (
+                         <button 
+                            key={model.id}
+                            style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '8px 12px', textAlign: 'left', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                            className="hover-bg"
+                            onClick={() => { setSelectedModel(model); setIsModelDropdownOpen(false); }}
+                         >
+                            <div style={{ fontWeight: 500, fontSize: '14px' }}>{model.name}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{model.description}</div>
+                         </button>
+                      ))}
+                   </motion.div>
+                )}
+             </AnimatePresence>
+         </div>
+
+         <form 
+            className="input-glass-bar" 
+            onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+            style={{ pointerEvents: 'auto' }}
+         >
+            <div className="input-actions-left">
+               <button type="button" className={`input-toggle-btn ${webSearchEnabled ? 'active' : ''}`} onClick={() => setWebSearchEnabled(!webSearchEnabled)} title="Web Search">
+                  <Globe size={18} />
+               </button>
+               <button type="button" className={`input-toggle-btn ${imageGenEnabled ? 'active' : ''}`} onClick={() => setImageGenEnabled(!imageGenEnabled)} title="Image Generation">
+                  <ImageIcon size={18} />
+               </button>
+               <button type="button" className={`input-toggle-btn ${isRecording ? 'active' : ''}`} onClick={() => setIsRecording(!isRecording)} title="Voice Input">
+                  <Mic size={18} />
+               </button>
+               <button type="button" className={`input-toggle-btn ${isLiveMode ? 'active' : ''}`} onClick={() => setIsLiveMode(!isLiveMode)} title="Nina Mode">
+                  <Ghost size={18} />
+               </button>
+            </div>
+
+            <input
+               className="input-field"
+               value={input}
+               onChange={(e) => setInput(e.target.value)}
+               placeholder="Ask anything..."
+               disabled={isLoading}
+            />
+            <button 
+               type="submit" 
+               className="send-button"
+               disabled={!input.trim() || isLoading}
+            >
+               <Send size={18} />
+            </button>
+         </form>
+
+
+      </motion.div>
     </div>
   );
 }
