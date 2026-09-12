@@ -84,7 +84,30 @@ const renderMessageContent = (content: string, onPreview?: (type: string, conten
                 );
             }
         }
-        return <span key={index}>{part}</span>;
+        
+        // Parse markdown images ![alt](url)
+        const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+        const textParts = part.split(imageRegex);
+        
+        if (textParts.length === 1) {
+            return <span key={index}>{part}</span>;
+        }
+        
+        const renderedTextParts = [];
+        for (let i = 0; i < textParts.length; i += 3) {
+            if (textParts[i]) renderedTextParts.push(<span key={`t-${index}-${i}`}>{textParts[i]}</span>);
+            if (i + 1 < textParts.length) {
+                const alt = textParts[i+1];
+                const url = textParts[i+2];
+                renderedTextParts.push(
+                    <div key={`img-${index}-${i}`} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                        <img src={url} alt={alt || 'Generated Image'} style={{ width: '100%', display: 'block' }} loading="lazy" />
+                    </div>
+                );
+            }
+        }
+        
+        return <span key={index}>{renderedTextParts}</span>;
     });
 };
 

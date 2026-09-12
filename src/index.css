@@ -116,9 +116,12 @@ h1, h2, h3, h4, p {
 }
 
 .message-bubble.assistant {
-  background: transparent;
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
   align-self: flex-start;
-  padding-left: 0;
+  padding-left: 20px; /* Reset padding to match user bubble */
 }
 
 /* Input Area (Centered & Docked) */
