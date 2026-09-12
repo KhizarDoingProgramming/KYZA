@@ -64,22 +64,21 @@ const renderMessageContent = (content: string, onPreview?: (type: string, conten
                                     <Download size={14} />
                                     Download
                                 </button>
-                                {(language === 'html' || language === 'svg' || language === 'csv' || language === 'markdown') && onPreview && (
-                                    <button 
-                                        onClick={() => onPreview(language, code.trim())}
-                                        style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                        className="hover-text"
-                                        title="Preview UI"
-                                    >
-                                        <Eye size={14} />
-                                        Preview
-                                    </button>
-                                )}
                             </div>
                         </div>
                         <div style={{ padding: '12px', overflowX: 'auto', whiteSpace: 'pre', fontSize: '13px', fontFamily: 'monospace' }}>
                             {code.trim()}
                         </div>
+                        {(language === 'html' || language === 'svg' || language === 'csv' || language === 'markdown') && onPreview && (
+                            <button 
+                                onClick={() => onPreview(language, code.trim())}
+                                style={{ width: '100%', padding: '12px', background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderTop: '1px solid var(--border-subtle)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px', fontWeight: 500 }}
+                                className="hover-bg"
+                            >
+                                <Eye size={16} />
+                                Preview Generated UI
+                            </button>
+                        )}
                     </div>
                 );
             }
@@ -890,6 +889,7 @@ export default function App() {
                   </div>
               </motion.div>
           )}
+          <div ref={messagesEndRef} />
       </div>
 
       <motion.div 
