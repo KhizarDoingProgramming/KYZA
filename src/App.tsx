@@ -311,9 +311,8 @@ export default function App() {
       setEditingChatId(null);
   };
 
-  const confirmDeleteChat = async () => {
-      if (!chatToDelete) return;
-      const sessionId = chatToDelete;
+  const deleteChat = async (sessionId: string) => {
+      if (!sessionId) return;
       
       setChatHistory(prev => prev.filter(c => c.sessionId !== sessionId));
       if (currentSessionId === sessionId) {
@@ -333,7 +332,6 @@ export default function App() {
           }]);
           if (error) console.error("Supabase insert deleted_chat error:", error);
       }
-      setChatToDelete(null);
   };
 
   useEffect(() => {
@@ -803,6 +801,13 @@ export default function App() {
                             <div style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                {chat.title || 'Untitled Chat'}
                             </div>
+                            <button 
+                               onClick={(e) => { e.stopPropagation(); deleteChat(chat.sessionId); }} 
+                               style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
+                               title="Delete Chat"
+                            >
+                               <Trash2 size={14} />
+                            </button>
                          </div>
                       ))}
                    </div>
