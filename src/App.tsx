@@ -981,13 +981,30 @@ export default function App() {
                exit={{ opacity: 0, x: 20 }}
                style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: isMobile ? '100%' : '50%', background: 'var(--bg-surface)', borderLeft: '1px solid var(--border-subtle)', zIndex: 100, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(20px)' }}
             >
-               <div style={{ padding: '16px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '16px', fontWeight: 600 }}>Code Preview</h3>
-                  <button onClick={() => setActiveArtifact(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px' }}><X size={20} /></button>
+               <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '16px', background: 'rgba(0,0,0,0.2)' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                     <div onClick={() => setActiveArtifact(null)} style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f56', cursor: 'pointer', boxShadow: '0 0 10px rgba(255,95,86,0.5)' }} title="Close" />
+                     <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ffbd2e' }} />
+                     <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#27c93f' }} />
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                     <div style={{ background: 'rgba(255,255,255,0.05)', padding: '6px 16px', borderRadius: '16px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px', minWidth: '60%', border: '1px solid var(--border-subtle)' }}>
+                        <Globe size={12} />
+                        <span>localhost:3000/preview/{activeArtifact.type}</span>
+                     </div>
+                  </div>
+                  <div style={{ display: 'flex', width: 44, justifyContent: 'flex-end' }}>
+                     {/* Space for balance */}
+                  </div>
                </div>
                <div style={{ flex: 1, overflow: 'auto', background: activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? '#ffffff' : 'transparent' }}>
                   {activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? (
-                     <iframe srcDoc={activeArtifact.content} style={{ width: '100%', height: '100%', border: 'none' }} title="Preview" sandbox="allow-scripts" />
+                     <iframe 
+                         srcDoc={activeArtifact.type === 'html' ? `<base href="about:blank">\n${activeArtifact.content}` : activeArtifact.content} 
+                         style={{ width: '100%', height: '100%', border: 'none' }} 
+                         title="Preview" 
+                         sandbox="allow-scripts allow-forms" 
+                     />
                   ) : (
                      <pre style={{ margin: 0, padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
                         {activeArtifact.content}
