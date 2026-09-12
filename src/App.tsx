@@ -862,6 +862,13 @@ export default function App() {
                  className={`message-bubble ${msg.role === 'user' ? 'user' : 'assistant'}`}
               >
                  {renderMessageContent(msg.content)}
+                 {msg.attachments && msg.attachments.length > 0 && (
+                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+                         {msg.attachments.map((att: string, i: number) => (
+                             <img key={i} src={att} alt="Attachment" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid var(--border-subtle)' }} loading="lazy" />
+                         ))}
+                     </div>
+                 )}
               </motion.div>
           ))}
           {isLoading && (
