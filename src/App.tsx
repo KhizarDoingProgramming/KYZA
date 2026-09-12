@@ -1008,10 +1008,14 @@ export default function App() {
                <div style={{ flex: 1, overflow: 'auto', background: activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? '#ffffff' : 'transparent' }}>
                   {activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? (
                      <iframe 
-                         srcDoc={activeArtifact.type === 'html' ? `<base href="about:blank">\n${activeArtifact.content}` : activeArtifact.content} 
+                         srcDoc={activeArtifact.type === 'html' 
+                             ? (activeArtifact.content.includes('<head>') 
+                                 ? activeArtifact.content.replace('<head>', '<head><base target="_blank">')
+                                 : `<base target="_blank">\n${activeArtifact.content}`)
+                             : activeArtifact.content} 
                          style={{ width: '100%', height: '100%', border: 'none' }} 
                          title="Preview" 
-                         sandbox="allow-scripts allow-forms" 
+                         sandbox="allow-scripts allow-forms allow-same-origin allow-popups" 
                      />
                   ) : (
                      <pre style={{ margin: 0, padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
