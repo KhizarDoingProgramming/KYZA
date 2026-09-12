@@ -99,7 +99,7 @@ const renderMessageContent = (content: string, onPreview?: (type: string, conten
                 const alt = textParts[i+1];
                 const url = textParts[i+2];
                 renderedTextParts.push(
-                    <div key={`img-${index}-${i}`} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                    <div key={`img-${index}-${i}`} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)', maxWidth: '400px' }}>
                         <img src={url} alt={alt || 'Generated Image'} style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
                     </div>
                 );
@@ -877,7 +877,7 @@ export default function App() {
                  {msg.attachments && msg.attachments.length > 0 && (
                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
                          {msg.attachments.map((att: string, i: number) => (
-                             <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', width: '100%' }}>
+                             <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', maxWidth: '400px' }}>
                                  <img src={att} alt="Generated Image" style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
                              </div>
                          ))}
@@ -897,14 +897,8 @@ export default function App() {
           <div ref={messagesEndRef} />
       </div>
 
-      <motion.div 
-         className="input-container-wrapper"
-         initial={false}
-         animate={{
-            bottom: messages.length === 0 ? '50%' : '40px',
-            y: messages.length === 0 ? '50%' : '0%'
-         }}
-         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      <div 
+         className={`input-container-wrapper ${messages.length === 0 ? 'centered' : 'docked'}`}
          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}
       >
          {messages.length === 0 && (
