@@ -899,13 +899,15 @@ export default function App() {
 
       <motion.div 
          className="input-container-wrapper"
-         initial={false}
-         animate={{
+         style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            gap: '12px',
             bottom: messages.length === 0 ? '50%' : '40px',
-            y: messages.length === 0 ? '50%' : '0%'
+            transform: messages.length === 0 ? 'translateY(50%)' : 'none',
+            transition: 'bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)'
          }}
-         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}
       >
          {messages.length === 0 && (
              <motion.h1 
