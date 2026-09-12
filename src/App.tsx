@@ -861,7 +861,7 @@ export default function App() {
                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
                  className={`message-bubble ${msg.role === 'user' ? 'user' : 'assistant'}`}
               >
-                 {renderMessageContent(msg.content)}
+                 {renderMessageContent(msg.content, (type, content) => setActiveArtifact({type, content}))}
                  {msg.attachments && msg.attachments.length > 0 && (
                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
                          {msg.attachments.map((att: string, i: number) => (
@@ -972,6 +972,31 @@ export default function App() {
 
 
       </motion.div>
+
+      <AnimatePresence>
+         {activeArtifact && (
+            <motion.div 
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               exit={{ opacity: 0, x: 20 }}
+               style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: isMobile ? '100%' : '50%', background: 'var(--bg-surface)', borderLeft: '1px solid var(--border-subtle)', zIndex: 100, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(20px)' }}
+            >
+               <div style={{ padding: '16px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '16px', fontWeight: 600 }}>Code Preview</h3>
+                  <button onClick={() => setActiveArtifact(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', cursor: 'pointer', padding: '4px' }}><X size={20} /></button>
+               </div>
+               <div style={{ flex: 1, overflow: 'auto', background: activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? '#ffffff' : 'transparent' }}>
+                  {activeArtifact.type === 'html' || activeArtifact.type === 'svg' ? (
+                     <iframe srcDoc={activeArtifact.content} style={{ width: '100%', height: '100%', border: 'none' }} title="Preview" sandbox="allow-scripts" />
+                  ) : (
+                     <pre style={{ margin: 0, padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
+                        {activeArtifact.content}
+                     </pre>
+                  )}
+               </div>
+            </motion.div>
+         )}
+      </AnimatePresence>
     </div>
   );
 }
