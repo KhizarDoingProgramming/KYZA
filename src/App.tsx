@@ -977,7 +977,7 @@ export default function App() {
          </form>
 
 
-      </motion.div>
+      </div>
 
       <AnimatePresence>
          {activeArtifact && (
