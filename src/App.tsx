@@ -897,9 +897,12 @@ export default function App() {
           <div ref={messagesEndRef} />
       </div>
 
-      <div 
-         className={`input-container-wrapper ${messages.length === 0 ? 'centered' : 'docked'}`}
-         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}
+      <motion.div 
+         className="input-container-wrapper"
+         initial={false}
+         animate={{ y: messages.length === 0 ? '-38vh' : 0 }}
+         transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', bottom: '40px' }}
       >
          {messages.length === 0 && (
              <motion.h1 
@@ -977,7 +980,7 @@ export default function App() {
          </form>
 
 
-      </div>
+      </motion.div>
 
       <AnimatePresence>
          {activeArtifact && (
