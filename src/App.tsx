@@ -899,7 +899,7 @@ export default function App() {
       </div>
 
       <motion.div 
-         layout
+
          className="input-container-wrapper"
          initial={false}
          transition={{ type: 'spring', stiffness: 350, damping: 30 }}
