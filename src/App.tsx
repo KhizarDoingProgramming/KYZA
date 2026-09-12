@@ -99,7 +99,7 @@ const renderMessageContent = (content: string, onPreview?: (type: string, conten
                 const alt = textParts[i+1];
                 const url = textParts[i+2];
                 renderedTextParts.push(
-                    <div key={`img-${index}-${i}`} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)', maxWidth: '400px' }}>
+                    <div key={`img-${index}-${i}`} style={{ margin: '16px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
                         <img src={url} alt={alt || 'Generated Image'} style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
                     </div>
                 );
@@ -864,8 +864,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 10, width: '100%', overflow: 'hidden' }}>
-          <div className="chat-scroll-area" style={{ flex: messages.length > 0 ? 1 : 0, overflowY: 'auto', padding: messages.length > 0 ? '24px' : 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="chat-scroll-area">
           {messages.map((msg, index) => (
               <motion.div 
                  key={index}
@@ -878,7 +877,7 @@ export default function App() {
                  {msg.attachments && msg.attachments.length > 0 && (
                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
                          {msg.attachments.map((att: string, i: number) => (
-                             <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', maxWidth: '400px' }}>
+                             <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', width: '100%' }}>
                                  <img src={att} alt="Generated Image" style={{ width: '100%', display: 'block', marginBottom: '-40px' }} loading="lazy" />
                              </div>
                          ))}
@@ -899,19 +898,14 @@ export default function App() {
       </div>
 
       <motion.div 
-
          className="input-container-wrapper"
          initial={false}
-         transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-         style={{ 
-             marginTop: messages.length === 0 ? 'auto' : '0',
-             marginBottom: messages.length === 0 ? 'auto' : '40px',
-             display: 'flex', 
-             flexDirection: 'column', 
-             alignItems: 'center', 
-             gap: '12px',
-             position: 'relative'
+         animate={{
+            bottom: messages.length === 0 ? '50%' : '40px',
+            y: messages.length === 0 ? '50%' : '0%'
          }}
+         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}
       >
          {messages.length === 0 && (
              <motion.h1 
@@ -990,7 +984,6 @@ export default function App() {
 
 
       </motion.div>
-      </div>
 
       <AnimatePresence>
          {activeArtifact && (
