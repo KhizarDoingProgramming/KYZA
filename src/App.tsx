@@ -897,7 +897,7 @@ export default function App() {
           <div ref={messagesEndRef} />
       </div>
 
-      <motion.div 
+      <div 
          className="input-container-wrapper"
          style={{ 
             display: 'flex', 
@@ -985,7 +985,7 @@ export default function App() {
          </form>
 
 
-      </motion.div>
+      </div>
 
       <AnimatePresence>
          {activeArtifact && (
