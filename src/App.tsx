@@ -792,7 +792,15 @@ export default function App() {
                    <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {chatHistory.length === 0 && <div style={{ color: 'var(--text-secondary)', fontSize: '14px', textAlign: 'center', marginTop: '20px' }}>No history yet.</div>}
                       {chatHistory.map(chat => (
-                         <div key={chat.session_id} className={`chat-history-item ${chat.session_id === currentSessionId ? 'active' : ''}`} onClick={() => { /* load chat */ }}>
+                         <div 
+                            key={chat.sessionId || Math.random()} 
+                            className={`chat-history-item ${chat.sessionId === currentSessionId ? 'active' : ''}`} 
+                            onClick={() => { 
+                               setCurrentSessionId(chat.sessionId); 
+                               setMessages(chat.messages || []); 
+                               setIsSidebarOpen(false); 
+                            }}
+                         >
                             <div style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                {chat.title || 'Untitled Chat'}
                             </div>
