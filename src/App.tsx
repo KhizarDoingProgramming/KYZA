@@ -981,12 +981,12 @@ export default function App() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
                       className="glass-panel"
-                      style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '8px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '150px', zIndex: 100, pointerEvents: 'auto' }}
+                      style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '12px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '160px', zIndex: 100, pointerEvents: 'auto', background: 'rgba(15, 15, 15, 0.85)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255, 255, 255, 0.15)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
                    >
                       {MODELS.map(model => (
                          <button 
                             key={model.id}
-                            style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '8px 12px', textAlign: 'left', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                            style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '10px 14px', textAlign: 'left', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: 'background 0.2s' }}
                             className="hover-bg"
                             onClick={() => { setSelectedModel(model); setIsModelDropdownOpen(false); }}
                          >
