@@ -112,7 +112,7 @@ export default async function handler(req, res) {
         responseContent = await runOpenAI(cohere, 'command-r', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(groq, 'llama3-8b-8192', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama-3.1-8b-instant', messages, currentPrompt);
         } catch (err2) {
           try {
             responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages, currentPrompt);
@@ -140,7 +140,7 @@ export default async function handler(req, res) {
         responseContent = await runOpenAI(cohere, 'command-r-plus', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(groq, 'llama3-70b-8192', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama-3.1-70b-versatile', messages, currentPrompt);
         } catch (err2) {
           try {
             responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
@@ -185,6 +185,9 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error(`Error in /api/chat:`, error);
-    res.status(500).json({ error: 'All fallback providers failed.' });
+    return res.status(200).json({ 
+      role: 'assistant', 
+      content: `I hit an error processing this request! The backend error was: ${error.message || String(error)}` 
+    });
   }
 }
