@@ -167,27 +167,11 @@ export default async function handler(req, res) {
       const promptText = messages[messages.length - 1].content || 'random image';
       const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 10000)}&nologo=true`;
       
-      try {
-        const imageRes = await fetch(imageUrl);
-        if (!imageRes.ok) {
-          throw new Error(`Pollinations returned ${imageRes.status}`);
-        }
-        const arrayBuffer = await imageRes.arrayBuffer();
-        const base64 = Buffer.from(arrayBuffer).toString('base64');
-        const dataUrl = `data:image/jpeg;base64,${base64}`;
-        
-        return res.status(200).json({ 
-          role: 'assistant', 
-          content: `Here is the image you requested for: "${promptText}"`, 
-          attachments: [dataUrl]
-        });
-      } catch (err) {
-        return res.status(200).json({ 
-          role: 'assistant', 
-          content: `Here is the image you requested for: "${promptText}"`, 
-          attachments: [imageUrl]
-        });
-      }
+      return res.status(200).json({ 
+        role: 'assistant', 
+        content: `Here is the image you requested for: "${promptText}"`, 
+        attachments: [imageUrl]
+      });
     }
 
     res.status(400).json({ error: 'Unknown model specified' });
