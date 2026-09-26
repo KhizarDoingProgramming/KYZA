@@ -136,11 +136,11 @@ app.post('/api/chat', async (req, res) => {
       } catch (err1) {
         console.warn("Cohere failed, falling back to Groq:", err1.message);
         try {
-          responseContent = await runOpenAI(groq, 'groq/compound-mini', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama3-8b-8192', messages, currentPrompt);
         } catch (err2) {
           console.warn("Groq failed, falling back to Cerebras:", err2.message);
           try {
-            responseContent = await runOpenAI(cerebras, 'gemma-4-31b', messages, currentPrompt);
+            responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages, currentPrompt);
           } catch (err3) {
             console.warn("Cerebras failed, falling back to DeepSeek:", err3.message);
             responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
@@ -171,7 +171,7 @@ app.post('/api/chat', async (req, res) => {
       } catch (err1) {
         console.warn("Cohere failed, falling back to Groq:", err1.message);
         try {
-          responseContent = await runOpenAI(groq, 'groq/compound', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama3-70b-8192', messages, currentPrompt);
         } catch (err2) {
           console.warn("Groq failed, falling back to OpenRouter:", err2.message);
           try {
