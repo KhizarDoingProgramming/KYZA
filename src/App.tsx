@@ -696,7 +696,7 @@ export default function App() {
 
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error communicating with the backend.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Backend is down right now, please use other models' }]);
     } finally {
       setIsLoading(false);
     }
