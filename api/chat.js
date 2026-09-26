@@ -114,7 +114,7 @@ export default async function handler(req, res) {
       } catch (err1) {
         errors.push(`Cohere: ${err1.message}`);
         try {
-          responseContent = await runOpenAI(groq, 'llama-3.1-8b-instant', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama3-8b-8192', messages, currentPrompt);
         } catch (err2) {
           errors.push(`Groq: ${err2.message}`);
           try {
@@ -149,7 +149,7 @@ export default async function handler(req, res) {
         responseContent = await runOpenAI(cohere, 'command-r-plus', messages, currentPrompt);
       } catch (err1) {
         try {
-          responseContent = await runOpenAI(groq, 'llama-3.1-70b-versatile', messages, currentPrompt);
+          responseContent = await runOpenAI(groq, 'llama3-70b-8192', messages, currentPrompt);
         } catch (err2) {
           try {
             responseContent = await runOpenAI(openrouter, 'openai/gpt-4o', messages, currentPrompt);
