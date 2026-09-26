@@ -76,26 +76,25 @@ export default async function handler(req, res) {
     return;
   }
 
-  
-  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-  const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'dummy' });
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy');
+  const hf = new HfInference(process.env.HUGGINGFACE_API_KEY || 'dummy');
   
   const openrouter = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_API_KEY,
+    apiKey: process.env.OPENROUTER_API_KEY || 'dummy',
   });
   const deepseek = new OpenAI({
     baseURL: "https://api.deepseek.com",
-    apiKey: process.env.DEEPSEEK_API_KEY,
+    apiKey: process.env.DEEPSEEK_API_KEY || 'dummy',
   });
   const cerebras = new OpenAI({
     baseURL: "https://api.cerebras.ai/v1",
-    apiKey: process.env.CEREBRAS_API_KEY,
+    apiKey: process.env.CEREBRAS_API_KEY || 'dummy',
   });
   const cohere = new OpenAI({
     baseURL: "https://api.cohere.com/v1",
-    apiKey: process.env.COHERE_API_KEY,
+    apiKey: process.env.COHERE_API_KEY || 'dummy',
   });
 
   const { model, messages, isNinaMode } = req.body;
