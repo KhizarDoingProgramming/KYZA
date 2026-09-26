@@ -108,16 +108,25 @@ export default async function handler(req, res) {
 
   try {
     if (model === 'nova') {
+      let errors = [];
       try {
         responseContent = await runOpenAI(cohere, 'command-r', messages, currentPrompt);
       } catch (err1) {
+        errors.push(`Cohere: ${err1.message}`);
         try {
           responseContent = await runOpenAI(groq, 'llama-3.1-8b-instant', messages, currentPrompt);
         } catch (err2) {
+          errors.push(`Groq: ${err2.message}`);
           try {
             responseContent = await runOpenAI(cerebras, 'llama3.1-8b', messages, currentPrompt);
           } catch (err3) {
-            responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
+            errors.push(`Cerebras: ${err3.message}`);
+            try {
+              responseContent = await runOpenAI(deepseek, 'deepseek-chat', messages, currentPrompt);
+            } catch (err4) {
+              errors.push(`DeepSeek: ${err4.message}`);
+              throw new Error(`All providers failed: \n` + errors.join('\n'));
+            }
           }
         }
       }
