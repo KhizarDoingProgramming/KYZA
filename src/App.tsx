@@ -9,11 +9,13 @@ import ProfileModal from './ProfileModal';
 import { GoogleLogin } from '@react-oauth/google';
 
 const MODELS = [
-  { id: 'nova', name: 'Nova', version: '1.1', description: 'Fastest' },
-  { id: 'atlas', name: 'Atlas', version: '1.1', description: 'For daily tasks' },
-  { id: 'helix', name: 'Helix', version: '1.1', description: 'For complex tasks' },
-  { id: 'prism', name: 'Prism', version: '1.2', description: 'Image generation' },
+  { id: 'nova', name: 'Nova', version: '1.1', description: 'In maintenance', disabled: true },
+  { id: 'atlas', name: 'Atlas', version: '1.1', description: 'For daily tasks', disabled: false },
+  { id: 'helix', name: 'Helix', version: '1.1', description: 'For complex tasks', disabled: false },
+  { id: 'prism', name: 'Prism', version: '1.2', description: 'Image generation', disabled: false },
 ];
+
+const DEFAULT_MODEL = MODELS.find(m => m.id === 'atlas') || MODELS[0];
 
 const getSessionId = () => {
     let id = sessionStorage.getItem('kyza_session_id');
@@ -244,7 +246,7 @@ export default function App() {
   const [chatToDelete, setChatToDelete] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(MODELS[0]);
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [isIncognito, setIsIncognito] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('kyza-theme') || 'light');
   
@@ -571,8 +573,24 @@ export default function App() {
     }
   };
 
+  const selectModelById = (id: string) => {
+    const found = MODELS.find(m => m.id === id && !m.disabled);
+    if (found) setSelectedModel(found);
+  };
+
+  const friendlyError = (err: unknown) => {
+    const msg = err instanceof Error ? err.message : String(err || '');
+    if (msg.includes('no working provider')) return 'All providers are unreachable right now. Check your API keys (.env locally, Environment Variables on Vercel) and try again.';
+    if (msg === 'Failed to fetch' || msg.includes('NetworkError')) return 'Cannot reach the backend — is the server running?';
+    return msg || 'Something went wrong, please try again.';
+  };
+
   const handleSend = async () => {
     if ((!input.trim() && attachments.length === 0) || isLoading) return;
+    if (selectedModel.disabled) {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Nova is under maintenance right now — pick Atlas or Helix and I\'m good to go.' }]);
+      return;
+    }
     
     if (isRecording && recognitionRef.current) {
         recognitionRef.current.stop();
@@ -649,11 +667,16 @@ export default function App() {
         })
       });
 
+      let data: any = null;
+      try { data = await response.json(); } catch { data = null; }
+
       if (!response.ok) {
-        throw new Error('Failed to fetch response');
+        throw new Error(data?.error || 'The backend rejected this request.');
+      }
+      if (!data?.content || !String(data.content).trim()) {
+        throw new Error('The model returned an empty reply.');
       }
 
-      const data = await response.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.content, attachments: data.attachments || [] }]);
       
       try {
@@ -696,7 +719,7 @@ export default function App() {
 
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Backend is down right now, please use other models' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: friendlyError(error) }]);
     } finally {
       setIsLoading(false);
     }
@@ -986,9 +1009,10 @@ export default function App() {
                       {MODELS.map(model => (
                          <button 
                             key={model.id}
-                            style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '10px 14px', textAlign: 'left', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: 'background 0.2s' }}
-                            className="hover-bg"
-                            onClick={() => { setSelectedModel(model); setIsModelDropdownOpen(false); }}
+                            style={{ background: 'transparent', border: 'none', color: model.disabled ? 'var(--text-sub)' : 'var(--text-primary)', padding: '10px 14px', textAlign: 'left', borderRadius: 'var(--radius-sm)', cursor: model.disabled ? 'not-allowed' : 'pointer', transition: 'background 0.2s', opacity: model.disabled ? 0.55 : 1 }}
+                            className={model.disabled ? '' : 'hover-bg'}
+                            disabled={model.disabled}
+                            onClick={() => { if (model.disabled) return; setSelectedModel(model); setIsModelDropdownOpen(false); }}
                          >
                             <div style={{ fontWeight: 500, fontSize: '14px' }}>{model.name}</div>
                             <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{model.description}</div>
@@ -1005,10 +1029,10 @@ export default function App() {
             style={{ pointerEvents: 'auto' }}
          >
             <div className="input-actions-left">
-               <button type="button" className={`input-toggle-btn ${webSearchEnabled ? 'active' : ''}`} onClick={() => setWebSearchEnabled(!webSearchEnabled)} title="Web Search">
+               <button type="button" className={`input-toggle-btn ${webSearchEnabled ? 'active' : ''}`} onClick={() => { setWebSearchEnabled(!webSearchEnabled); selectModelById('atlas'); }} title="Web Search (Atlas)">
                   <Globe size={18} />
                </button>
-               <button type="button" className={`input-toggle-btn ${imageGenEnabled ? 'active' : ''}`} onClick={() => setImageGenEnabled(!imageGenEnabled)} title="Image Generation">
+               <button type="button" className={`input-toggle-btn ${imageGenEnabled ? 'active' : ''}`} onClick={() => { setImageGenEnabled(!imageGenEnabled); selectModelById('prism'); }} title="Image Generation (Prism)">
                   <ImageIcon size={18} />
                </button>
                <button type="button" className={`input-toggle-btn ${isRecording ? 'active' : ''}`} onClick={toggleRecording} title="Voice Input">
@@ -1029,7 +1053,7 @@ export default function App() {
             <button 
                type="submit" 
                className="send-button"
-               disabled={!input.trim() || isLoading}
+               disabled={!input.trim() || isLoading || selectedModel.disabled}
             >
                <Send size={18} />
             </button>
