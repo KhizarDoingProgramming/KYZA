@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2, Eye } from 'lucide-react';
+import { Plus, ChevronDown, Download, Check, Send, Globe, Mic, X, Ghost, Sun, Moon, Sparkles, PanelLeftClose, PanelLeftOpen, Volume2, ImageIcon, UserRound, LogIn, Copy, Trash2, Edit2, Eye, Menu } from 'lucide-react';
 import NinaAvatar from './NinaAvatar';
 import ShaderCanvas from './ShaderCanvas';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -288,6 +288,14 @@ export default function App() {
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [imageGenEnabled, setImageGenEnabled] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(false);
+  const [isActionsExpanded, setIsActionsExpanded] = useState(false);
+  const prevInputLength = useRef(0);
+  useEffect(() => {
+    if (input.length > 0 && prevInputLength.current === 0) {
+      setIsActionsExpanded(false);
+    }
+    prevInputLength.current = input.length;
+  }, [input]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -1066,19 +1074,46 @@ export default function App() {
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
             style={{ pointerEvents: 'auto' }}
          >
-            <div className="input-actions-left">
-               <button type="button" className={`input-toggle-btn ${webSearchEnabled ? 'active' : ''}`} onClick={() => { setWebSearchEnabled(!webSearchEnabled); selectModelById('atlas'); }} title="Web Search (Atlas)">
-                  <Globe size={18} />
-               </button>
-               <button type="button" className={`input-toggle-btn ${imageGenEnabled ? 'active' : ''}`} onClick={() => { setImageGenEnabled(!imageGenEnabled); selectModelById('prism'); }} title="Image Generation (Prism)">
-                  <ImageIcon size={18} />
-               </button>
-               <button type="button" className={`input-toggle-btn ${isRecording ? 'active' : ''}`} onClick={toggleRecording} title="Voice Input">
-                  <Mic size={18} />
-               </button>
-               <button type="button" className={`input-toggle-btn ${isLiveMode ? 'active' : ''}`} onClick={() => setIsLiveMode(!isLiveMode)} title="Nina Mode">
-                  <Ghost size={18} />
-               </button>
+            <div className="input-actions-left" style={{ display: 'flex', alignItems: 'center' }}>
+               <AnimatePresence mode="wait">
+                  {(!isActionsExpanded && input.length > 0) ? (
+                     <motion.button
+                        key="expand-btn"
+                        initial={{ opacity: 0, scale: 0.8, width: 0 }}
+                        animate={{ opacity: 1, scale: 1, width: 'auto' }}
+                        exit={{ opacity: 0, scale: 0.8, width: 0 }}
+                        transition={{ duration: 0.2 }}
+                        type="button" 
+                        className="input-toggle-btn"
+                        onClick={() => setIsActionsExpanded(true)} 
+                        title="More options"
+                     >
+                        <Menu size={18} />
+                     </motion.button>
+                  ) : (
+                     <motion.div
+                        key="action-btns"
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: 'auto' }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{ display: 'flex', gap: '8px', overflow: 'hidden' }}
+                     >
+                        <button type="button" className={`input-toggle-btn ${webSearchEnabled ? 'active' : ''}`} onClick={() => { setWebSearchEnabled(!webSearchEnabled); selectModelById('atlas'); }} title="Web Search (Atlas)">
+                           <Globe size={18} />
+                        </button>
+                        <button type="button" className={`input-toggle-btn ${imageGenEnabled ? 'active' : ''}`} onClick={() => { setImageGenEnabled(!imageGenEnabled); selectModelById('prism'); }} title="Image Generation (Prism)">
+                           <ImageIcon size={18} />
+                        </button>
+                        <button type="button" className={`input-toggle-btn ${isRecording ? 'active' : ''}`} onClick={toggleRecording} title="Voice Input">
+                           <Mic size={18} />
+                        </button>
+                        <button type="button" className={`input-toggle-btn ${isLiveMode ? 'active' : ''}`} onClick={() => setIsLiveMode(!isLiveMode)} title="Nina Mode">
+                           <Ghost size={18} />
+                        </button>
+                     </motion.div>
+                  )}
+               </AnimatePresence>
             </div>
 
             <input
