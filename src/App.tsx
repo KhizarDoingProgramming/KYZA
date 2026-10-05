@@ -707,7 +707,7 @@ export default function App() {
         body: JSON.stringify({
           model: selectedModel.id,
           isNinaMode: isLiveMode,
-          chatId: import.meta.env.VITE_SUPABASE_URL ? currentSessionId : undefined,
+          chatId: (import.meta.env.VITE_SUPABASE_URL && token) ? currentSessionId : undefined,
           messages: currentMessages.map(m => ({ role: m.role, content: m.content, attachments: m.attachments }))
         })
       });
