@@ -155,7 +155,7 @@ h1, h2, h3, h4, p {
   border-radius: var(--radius-pill);
   padding: 8px 8px 8px 24px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 12px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px inset rgba(255,255,255,0.05);
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
@@ -175,10 +175,12 @@ h1, h2, h3, h4, p {
   font-family: inherit;
   outline: none;
   resize: none;
+  min-height: 24px;
   height: 24px;
   line-height: 24px;
   max-height: 120px;
   padding: 0;
+  margin-bottom: 8px; /* center with 40px buttons (40-24=16/2=8) */
   min-width: 0; /* Fix flex blowout */
 }
 
@@ -546,6 +548,7 @@ iframe {
   .input-glass-bar {
     padding: 6px 6px 6px 16px;
     gap: 8px;
+    align-items: flex-end;
   }
   
   /* Improve touch targets */

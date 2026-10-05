@@ -1157,12 +1157,23 @@ export default function App() {
                </AnimatePresence>
             </div>
 
-            <input
+            <textarea
+               ref={textareaRef}
                className="input-field"
                value={input}
-               onChange={(e) => setInput(e.target.value)}
+               onChange={(e) => {
+                 setInput(e.target.value);
+                 autoSize(e.target);
+               }}
+               onKeyDown={(e) => {
+                 if (e.key === 'Enter' && !e.shiftKey) {
+                   e.preventDefault();
+                   handleSend();
+                 }
+               }}
                placeholder="Ask anything..."
                disabled={isLoading}
+               rows={1}
             />
             <button 
                type="submit" 
