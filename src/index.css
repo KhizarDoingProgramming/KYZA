@@ -179,6 +179,7 @@ h1, h2, h3, h4, p {
   line-height: 24px;
   max-height: 120px;
   padding: 0;
+  min-width: 0; /* Fix flex blowout */
 }
 
 .input-field::placeholder {
