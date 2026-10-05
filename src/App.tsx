@@ -320,8 +320,28 @@ export default function App() {
       };
   }, []);
 
+  const isScrolledUp = useRef(false);
+
   useEffect(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      const handleScroll = (e: Event) => {
+          const target = e.target as HTMLElement;
+          const { scrollTop, scrollHeight, clientHeight } = target;
+          isScrolledUp.current = scrollHeight - scrollTop - clientHeight > 100;
+      };
+      
+      const scrollArea = document.querySelector('.chat-scroll-area');
+      if (scrollArea) {
+          scrollArea.addEventListener('scroll', handleScroll);
+      }
+      return () => {
+          if (scrollArea) scrollArea.removeEventListener('scroll', handleScroll);
+      };
+  }, []);
+
+  useEffect(() => {
+      if (!isScrolledUp.current) {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
   }, [messages, isLoading]);
 
   useEffect(() => {
@@ -579,6 +599,7 @@ export default function App() {
   };
 
   const friendlyError = (err: unknown) => {
+    if (err instanceof DOMException && err.name === 'AbortError') return 'The request timed out. Please try again.';
     const msg = err instanceof Error ? err.message : String(err || '');
     if (msg.includes('no working provider')) return 'All providers are unreachable right now. Check your API keys (.env locally, Environment Variables on Vercel) and try again.';
     if (msg === 'Failed to fetch' || msg.includes('NetworkError')) return 'Cannot reach the backend — is the server running?';
@@ -668,9 +689,13 @@ export default function App() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers,
+        signal: controller.signal,
         body: JSON.stringify({
           model: selectedModel.id,
           isNinaMode: isLiveMode,
@@ -678,6 +703,7 @@ export default function App() {
           messages: currentMessages.map(m => ({ role: m.role, content: m.content, attachments: m.attachments }))
         })
       });
+      clearTimeout(timeoutId);
 
       let data: any = null;
       try { data = await response.json(); } catch { data = null; }

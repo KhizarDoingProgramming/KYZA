@@ -510,3 +510,50 @@ html {
 iframe {
   -webkit-overflow-scrolling: touch;
 }
+
+/* --- Mobile Responsive Fixes --- */
+@media (max-width: 768px) {
+  /* Prevent horizontal scrolling */
+  body, html, .app-container {
+    overflow-x: hidden;
+    width: 100vw;
+  }
+
+  /* Natural text wrapping and bubble sizing */
+  .message-bubble {
+    max-width: 95%; /* Use more space on mobile */
+    min-width: 0; /* Fix flexbox blowout */
+    padding: 12px 16px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+  
+  /* Code blocks scrolling instead of stretching the page */
+  .message-bubble > div {
+    max-width: 100%;
+  }
+
+  /* Wrap regular text */
+  .message-bubble span, .message-bubble p, .message-bubble a {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Improve composer responsiveness */
+  .input-glass-bar {
+    padding: 6px 6px 6px 16px;
+    gap: 8px;
+  }
+  
+  /* Improve touch targets */
+  .send-button, .sidebar-button, button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .chat-scroll-area {
+    padding: 80px 12px 140px 12px;
+  }
+}
