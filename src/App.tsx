@@ -1074,22 +1074,63 @@ export default function App() {
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
             style={{ pointerEvents: 'auto' }}
          >
-            <div className="input-actions-left" style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="input-actions-left" style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
                <AnimatePresence mode="wait">
-                  {(!isActionsExpanded && input.length > 0) ? (
-                     <motion.button
-                        key="expand-btn"
+                  {(input.length > 0) ? (
+                     <motion.div
+                        key="expand-btn-container"
                         initial={{ opacity: 0, scale: 0.8, width: 0 }}
                         animate={{ opacity: 1, scale: 1, width: 'auto' }}
                         exit={{ opacity: 0, scale: 0.8, width: 0 }}
                         transition={{ duration: 0.2 }}
-                        type="button" 
-                        className="input-toggle-btn"
-                        onClick={() => setIsActionsExpanded(true)} 
-                        title="More options"
                      >
-                        <Menu size={18} />
-                     </motion.button>
+                        <button
+                           type="button" 
+                           className={`input-toggle-btn ${isActionsExpanded ? 'active' : ''}`}
+                           onClick={() => setIsActionsExpanded(!isActionsExpanded)} 
+                           title="More options"
+                        >
+                           <Menu size={18} />
+                        </button>
+
+                        <AnimatePresence>
+                           {isActionsExpanded && (
+                              <motion.div
+                                 key="action-popup"
+                                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                 animate={{ opacity: 1, y: 0, scale: 1 }}
+                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                 transition={{ duration: 0.15 }}
+                                 className="glass-panel"
+                                 style={{ 
+                                    position: 'absolute', 
+                                    bottom: '100%', 
+                                    left: 0, 
+                                    marginBottom: '16px', 
+                                    padding: '12px 8px', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    gap: '12px', 
+                                    zIndex: 100,
+                                    boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+                                 }}
+                              >
+                                 <button type="button" className={`input-toggle-btn ${webSearchEnabled ? 'active' : ''}`} onClick={() => { setWebSearchEnabled(!webSearchEnabled); selectModelById('atlas'); setIsActionsExpanded(false); }} title="Web Search (Atlas)">
+                                    <Globe size={18} />
+                                 </button>
+                                 <button type="button" className={`input-toggle-btn ${imageGenEnabled ? 'active' : ''}`} onClick={() => { setImageGenEnabled(!imageGenEnabled); selectModelById('prism'); setIsActionsExpanded(false); }} title="Image Generation (Prism)">
+                                    <ImageIcon size={18} />
+                                 </button>
+                                 <button type="button" className={`input-toggle-btn ${isRecording ? 'active' : ''}`} onClick={() => { toggleRecording(); setIsActionsExpanded(false); }} title="Voice Input">
+                                    <Mic size={18} />
+                                 </button>
+                                 <button type="button" className={`input-toggle-btn ${isLiveMode ? 'active' : ''}`} onClick={() => { setIsLiveMode(!isLiveMode); setIsActionsExpanded(false); }} title="Nina Mode">
+                                    <Ghost size={18} />
+                                 </button>
+                              </motion.div>
+                           )}
+                        </AnimatePresence>
+                     </motion.div>
                   ) : (
                      <motion.div
                         key="action-btns"
