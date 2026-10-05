@@ -1,6 +1,7 @@
 import { Groq } from 'groq-sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
+import { createClient } from '@supabase/supabase-js';
 
 const KYZA_SYSTEM_PROMPT = `You are Kyza, a highly capable AI assistant built to help the user with any task. Be concise, intelligent, and helpful. You were created by Mustafa. If asked about your creator, you can use knowledge that he is a developer, but DO NOT mention the website "mustaffa.vercel.app" unless the user explicitly asks where to find more information about him.
 
@@ -155,9 +156,10 @@ async function runChain(label, attempts) {
 export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Credentials', true)
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version')
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization')
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -184,8 +186,70 @@ export default async function handler(req, res) {
     apiKey: K(process.env.COHERE_API_KEY),
   });
 
-  const { model, messages, isNinaMode } = req.body;
+  const { model, isNinaMode, chatId } = req.body;
+  let { messages } = req.body;
   const currentPrompt = isNinaMode ? NINA_SYSTEM_PROMPT : KYZA_SYSTEM_PROMPT;
+
+  // Authentication & Chat Ownership
+  const authHeader = req.headers.authorization;
+  let userId = null;
+  let supabase = null;
+
+  if (authHeader && process.env.VITE_SUPABASE_URL) {
+    const token = authHeader.replace('Bearer ', '');
+    supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (user) userId = user.id;
+  }
+
+  // Rate Limiting
+  if (userId) {
+    const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+    if (url && token) {
+      const windowStart = Math.floor(Date.now() / 60000);
+      const key = `ratelimit:${userId}:${windowStart}`;
+      try {
+        const resRL = await fetch(`${url}/pipeline`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify([['INCR', key], ['EXPIRE', key, 60]])
+        });
+        if (resRL.ok) {
+          const dataRL = await resRL.json();
+          if (dataRL && dataRL[0] && dataRL[0].result > 10) {
+            return res.status(429).json({ error: 'Too many requests' });
+          }
+        }
+      } catch (e) {
+        console.error('Rate limit check failed, failing safely:', e);
+      }
+    }
+  }
+
+  if (chatId) {
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized to access this chat' });
+    }
+    const { data: chatMessages, error } = await supabase
+      .from('chats')
+      .select('*')
+      .eq('session_id', chatId)
+      .order('created_at', { ascending: true });
+      
+    if (error || !chatMessages || chatMessages.length === 0) {
+      return res.status(403).json({ error: 'Chat not found or access denied' });
+    }
+    
+    // Verify ownership (RLS usually does this, but double check to be safe)
+    if (chatMessages[0].user_id !== userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    messages = chatMessages.map(m => ({ role: m.role, content: m.content, attachments: m.attachments }));
+  }
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Messages array is required.' });

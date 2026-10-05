@@ -655,14 +655,26 @@ export default function App() {
     }
 
     try {
+      let token = null;
+      if (import.meta.env.VITE_SUPABASE_URL) {
+         const { data: { session } } = await supabase.auth.getSession();
+         token = session?.access_token;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           model: selectedModel.id,
           isNinaMode: isLiveMode,
+          chatId: import.meta.env.VITE_SUPABASE_URL ? currentSessionId : undefined,
           messages: currentMessages.map(m => ({ role: m.role, content: m.content, attachments: m.attachments }))
         })
       });
